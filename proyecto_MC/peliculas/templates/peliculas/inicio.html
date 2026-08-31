@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'peliculas/css/inicio.css' %}">
+
+</head>
+<body>
+    
+    <main>
+        {%block content%}
+       
+        <a href="{% url 'peliculas:agregar' %}" class="boton-superior">Agregar película</a>
+        <div class="catalogo-peliculas ">
+        {% for pelicula in peliculas %}
+            <div class="card">
+                <img src="{{ pelicula.imagen }}" width="200" alt="Póster de {{ pelicula.titulo }}">
+                <p class="subtitulo-tarjeta">{{ pelicula.titulo }}</p>
+                <a href="{% url 'peliculas:resenas_pelicula' pelicula.id %}" class="btn">Ver película</a>
+            </div>
+        {% empty %}
+            <p>Todavía no hay películas cargadas.</p>
+        {% endfor %}
+        </div>
+        {%endblock%}
+    </main>
+
+</body>
+</html>

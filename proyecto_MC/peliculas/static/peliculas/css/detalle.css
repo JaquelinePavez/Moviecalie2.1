@@ -1,0 +1,17 @@
+.Tarjeta {
+    background: #222934;
+    color: white;
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+.titulo-destacable {
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: bold;
+    display: inline-flex;
+}

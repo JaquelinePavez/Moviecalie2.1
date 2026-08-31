@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo_pagina }}</title>
+    <link rel="stylesheet" href="{% static 'css/body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/headerBoostrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detalles.css' %}">
+</head>
+<body>
+    <header class="perfil">Detalle</header>
+    <main>
+        {% if pelicula %}
+        <div class="Tarjeta">
+            <img src="{{ pelicula.imagen }}" alt="Póster de {{ pelicula.titulo }}" style="width:200px; border-radius:10px;">
+            <h1 class="titulo-destacable">{{ pelicula.titulo|upper }}</h1>
+            <p>Año: {{ pelicula.anio }} — Duración: {{ pelicula.duracion }} min</p>
+            <p>Género: {{ pelicula.genero }}</p>
+            <p>Clasificación: {{ pelicula.clasificacion }}</p>
+            <p>Plataforma: {{ pelicula.plataforma }}</p>
+            <p>Calificación general: {{ pelicula.calificacion|default:"Sin calificación aún" }}</p>
+            <h2>Sinopsis</h2>
+            <p>{{ pelicula.sinopsis }}</p>
+            <h2>Reparto ({{ reparto|length }})</h2>
+            <ul>
+                {% for actor in reparto %}
+                <li>{{ actor }}</li>
+                {% empty %}
+                <li>Reparto no cargado.</li>
+                {% endfor %}
+            </ul>
+            <p>
+                <a href="{% url 'inicio' %}" class="btn">Volver al inicio</a> 
+                <a href="{% url 'peliculas:agregar' %}" class="btn">Agregar otra</a>
+            </p>
+        </div>
+        {% else %}
+        <p>Película no encontrada.</p>
+        {% endif %}
+    </main>
+    <footer class="footer"><p class="titulo-footer">MovieCali 2.0</p></footer>
+</body>
+</html>

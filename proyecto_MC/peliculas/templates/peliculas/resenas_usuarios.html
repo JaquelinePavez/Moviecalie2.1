@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{%block title%}Reseñas de usuarios{%endblock%}</title>
+    <!--<link rel="stylesheet" href="{% static 'css/body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/headerBoostrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/resenas_usuarios.css' %}">
+-->
+</head>
+<body>
+    {%block content%}
+    <header>
+        
+        <nav>
+            <a href="{% url 'inicio' %}" class="btn">Volver al inicio</a>
+        </nav>
+    
+    </header>
+    <!--<header class="perfil"><a href="{% url 'inicio' %}" class="btn">Volver al inicio</a></header>-->
+    <main>
+        
+        {% if pelicula %}
+        <div class="cabecera-pelicula" style="display:flex; gap:20px; align-items:center;">
+            <img src="{{ pelicula.imagen }}" width="200" style="border-radius:10px;" alt="{{ pelicula.titulo }}">
+            <div class="info-pelicula">
+                <h1 class="titulo-principal">{{ pelicula.titulo }}</h1>
+                <h2>Reseñas de usuarios:</h2>
+            </div>
+        </div>
+        <details style="margin:20px 0;"><summary class="boton-superior" style="cursor:pointer;">Agregar reseña</summary>
+            <form method="POST" class="categoria-bloque" style="margin-top:15px;">
+                {% csrf_token %}
+                <label>Tu nombre: <input type="text" name="usuario" required></label>
+                <label>Título: <input type="text" name="titulo" required></label>
+                <label>Calificación (1-10): <input type="number" name="calificacion" min="1" max="10" required></label>
+                <label>Comentario: <textarea name="contenido" rows="4" required></textarea></label>
+                <button type="submit" class="accion_publicar">Publicar Reseña</button>
+            </form>
+        </details>
+        <section class="contenedor-aside">
+        {% for resena in resenas %}
+            <div class="item-aside">
+                <p><b>Calificación:</b> {{ resena.calificacion }}</p>
+                <img src="{% static resena.foto_usuario %}" width="40" style="border-radius:50%;">
+                <p class="resena-autor">{{ resena.usuario }} dice:</p>
+                <h3>{{ resena.titulo }}</h3>
+                <p class="resena-texto">"{{ resena.contenido }}"</p>
+                <div class="botonera">
+                    <button class="btn">Reportes {{ resena.reportes }}</button>
+                    <button class="btn">Eliminar</button>
+                    <a class="btn">{{ resena.comentarios_count }} Comentarios</a>
+                    <button class="btn">Ocultar</button>
+                </div>
+            </div>
+        {% empty %}<p>No hay reseñas publicadas.</p>{% endfor %}
+        </section>
+        {% else %}<p>Película no encontrada.</p>{% endif %}
+        {%endblock%}
+    </main>
+    <!--<footer class="footer"><p class="titulo-footer">MovieCali 2.0</p></footer>-->
+</body>
+</html>

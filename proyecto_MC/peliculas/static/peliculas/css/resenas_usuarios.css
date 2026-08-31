@@ -1,0 +1,4 @@
+.contenedor-aside { display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin: auto; }
+.item-aside { background: #222934; border: 2px solid #2d3748; border-radius: 12px; padding: 15px; }
+.resena-autor { font-weight: bold; color: #3771a8; }
+.resena-texto { margin-top: 8px; }
