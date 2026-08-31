@@ -1,0 +1,5 @@
+.formulario-agregar { max-width: 600px; margin: auto; }
+.formulario-agregar label { display: block; margin-top: 12px; color: white; }
+.formulario-agregar input, .formulario-agregar textarea, .formulario-agregar select {
+    width: 100%; padding: 10px; border-radius: 6px; border: none; margin-top: 5px; box-sizing: border-box;
+}
