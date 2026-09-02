@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'peliculas/css/agregar.css' %}">
 {% endblock %}
 
+<!-- esta pagina si puede volver al inicio-->
 {% block navegacion %}
     {% include "componentes/navegacion.html" %}
 {% endblock %}
@@ -32,7 +33,7 @@
         <label class="form-label">Plataforma: <input type="text" name="plataforma"></label>
         <button type="submit" class="accion_publicar">Guardar</button>
         
-        <a href="{% url 'inicio' %}" class="btn">Volver al inicio</a>
+        <!--<a href="{% url 'inicio' %}" class="btn">Volver al inicio</a> -->
     </form>
 
 {% endblock %} <!-- fin de contenido->

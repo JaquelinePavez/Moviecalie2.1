@@ -5,17 +5,12 @@
     Reseñas de usuarios
 {% endblock %}
 
+<!-- esta pagina si puede volver al inicio-->
 {% block navegacion %}
     {% include "componentes/navegacion.html" %}
 {% endblock %}
 
 {% block content %} <!-- inicia contenido que se va mostrar-->
-
-    <header>
-        <nav>
-            <a href="{% url 'inicio' %}" class="btn"> Volver al inicio </a>
-        </nav>
-    </header>
 
     {% if pelicula %}
 
