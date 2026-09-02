@@ -31,10 +31,9 @@
             <h2>Reparto ({{ reparto|length }})</h2><!-- filtro: cantidad de elementos de una lista, o la longitud de un texto.-->
             <ul>
                 {% for actor in reparto %}
-                <li>{{ actor }}</li>
-
-                {% empty %} <!-- se ejecuta si reparto está vacío.-->
-                <li>Reparto no cargado.</li>
+                    <li>{{ actor }}</li>
+                    {% empty %} <!-- se ejecuta si reparto está vacío.-->
+                    <li>Reparto no cargado.</li>
                 {% endfor %}
             </ul>
             <p>

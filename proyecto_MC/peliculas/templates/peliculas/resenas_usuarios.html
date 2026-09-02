@@ -9,9 +9,7 @@
 
     <header>
         <nav>
-            <a href="{% url 'inicio' %}" class="btn">
-                Volver al inicio
-            </a>
+            <a href="{% url 'inicio' %}" class="btn"> Volver al inicio </a>
         </nav>
     </header>
 
@@ -26,8 +24,10 @@
         </div>
 
         <details style="margin:20px 0;"><summary class="boton-superior" style="cursor:pointer;">Agregar reseña</summary>
+
             <form method="POST" class="categoria-bloque" style="margin-top:15px;">
                 {% csrf_token %}
+
                 <label>Tu nombre: <input type="text" name="usuario" required></label>
                 <label>Título: <input type="text" name="titulo" required></label>
                 <label>Calificación (1-10): <input type="number" name="calificacion" min="1" max="10" required></label>
@@ -37,23 +37,31 @@
         </details>
 
         <section class="contenedor-aside">
+
             {% for resena in resenas %}
+
                 <div class="item-aside">
                     <p><b>Calificación:</b> {{ resena.calificacion }}</p>
                     <img src="{% static resena.foto_usuario %}" width="40" style="border-radius:50%;">
                     <p class="resena-autor">{{ resena.usuario }} dice:</p>
                     <h3>{{ resena.titulo }}</h3>
                     <p class="resena-texto">"{{ resena.contenido }}"</p>
+
                     <div class="botonera">
                         <button class="btn">Reportes {{ resena.reportes }}</button>
                         <button class="btn">Eliminar</button>
                         <a class="btn">{{ resena.comentarios_count }} Comentarios</a>
-                    <button class="btn">Ocultar</button>
+                        <button class="btn">Ocultar</button>
+                    </div>
                 </div>
-            </div>
-        {% empty %}<p>No hay reseñas publicadas.</p>{% endfor %}
+                {% empty %}
+                <p>No hay reseñas publicadas.</p>
+            {% endfor %}
+
         </section>
-    {% else %}
+
+        {% else %}
         <p>Película no encontrada.</p>
+
     {% endif %}
 {%endblock%} <!-- fin de contenido-->
