@@ -27,6 +27,7 @@
 
         <details style="margin:20px 0;"><summary class="boton-superior" style="cursor:pointer;">Agregar reseña</summary>
             <form method="POST" class="categoria-bloque" style="margin-top:15px;">
+                {% csrf_token %}
                 <label>Tu nombre: <input type="text" name="usuario" required></label>
                 <label>Título: <input type="text" name="titulo" required></label>
                 <label>Calificación (1-10): <input type="number" name="calificacion" min="1" max="10" required></label>

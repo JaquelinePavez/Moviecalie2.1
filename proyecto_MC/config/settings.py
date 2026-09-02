@@ -25,7 +25,12 @@ SECRET_KEY = "django-insecure-^azhl9zqd$u(#tj&tazp@#j+o&^by_nl(9f#zmdx*w87p_1a-l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# agregue esto por que sino no funcionaba el publicar reseña
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost:8000",
+]
 
 
 # Application definition

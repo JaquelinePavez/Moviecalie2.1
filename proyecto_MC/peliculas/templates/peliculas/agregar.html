@@ -14,6 +14,7 @@
     <h1 class="titulo-principal">{{ titulo_pagina }}</h1>
 
     <form method="post" class="categoria-bloque">
+        {% csrf_token %}
         <label class="form-label">Imagen (URL): <input type="url" name="imagen"></label>
         <label class="form-label">Título: <input type="text" name="titulo" required></label>
         <label class="form-label">Año de estreno: <input type="number" name="anio" required></label>

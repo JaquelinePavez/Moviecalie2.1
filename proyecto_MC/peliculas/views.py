@@ -38,15 +38,26 @@ peliculas = [
 
 # Las demás vistas estan bien en aplicación porque son funcionalidades específicas de películas.
 
+#refactorizamos
 def agregar_pelicula(request):
+
+    # GET: mostrar el formulario
+    if request.method == "GET":
+        contexto = {"titulo_pagina": "Agregar nueva pelicula"}
+        return render(request, "peliculas/agregar.html", contexto)
+
+    # POST: procesar los datos enviados por el formulario
     if request.method == "POST":
-        id_mas_alto=0
+        id_mas_alto = 0
+
         for p in peliculas:
             if p["id"] > id_mas_alto:
                 id_mas_alto = p["id"]
+
         proximo_id = id_mas_alto + 1
+
         pelicula = {
-            "id":proximo_id,
+            "id": proximo_id,
             "imagen": request.POST.get("imagen"),
             "titulo": request.POST.get("titulo"),
             "anio": request.POST.get("anio"),
@@ -58,12 +69,10 @@ def agregar_pelicula(request):
             "clasificacion": request.POST.get("clasificacion"),
             "plataforma": request.POST.get("plataforma"),
         }
-        
+
         peliculas.append(pelicula)
         return redirect("peliculas:detalle", id=pelicula["id"])
-
-    contexto = {"titulo_pagina": "Agregar nueva pelicula"}
-    return render(request, "peliculas/agregar.html", contexto)
+    
 
 def detalle_pelicula(request, id):
     # busco la pelicula por id dentro de la lista en memoria
@@ -111,33 +120,39 @@ RESENAS_LISTA = [
 ]
 
 def detalle_resenas_pelicula(request, id):
+
+    # Buscar la película
     pelicula = None
     for peli in peliculas:
         if peli["id"] == id:
             pelicula = peli
             break
 
-    if request.method == 'POST':
-        nueva_resena = {
-            'pelicula_id': id, #le asigno la id de la pelicula a la reseña
-            'usuario': request.POST.get('usuario', 'Usuario Anónimo'),
-            'calificacion': f"{request.POST.get('calificacion', '10')} / 10",
-            'foto_usuario': 'recursos/imagenes/usuarios/usuario_3.jpg',
-            'titulo': request.POST.get('titulo'),
-            'contenido': request.POST.get('contenido'),
-            'reportes': 0,
-            'comentarios_count': 0
+    # GET: mostrar las reseñas de la película
+    if request.method == "GET":
+        resenas_de_esta_pelicula = []
+        for resena in RESENAS_LISTA:
+            if resena.get("pelicula_id") == id:
+                resenas_de_esta_pelicula.append(resena)
+
+        contexto = {
+            "pelicula": pelicula,
+            "resenas": resenas_de_esta_pelicula
         }
+        return render(request, "peliculas/resenas_usuarios.html", contexto)
+
+    # POST: agregar una nueva reseña
+    if request.method == "POST":
+        nueva_resena = {
+            "pelicula_id": id,
+            "usuario": request.POST.get("usuario", "Usuario Anónimo"),
+            "calificacion": f"{request.POST.get('calificacion', '10')} / 10",
+            "foto_usuario": "recursos/imagenes/usuarios/usuario_3.jpg",
+            "titulo": request.POST.get("titulo"),
+            "contenido": request.POST.get("contenido"),
+            "reportes": 0,
+            "comentarios_count": 0
+        }
+
         RESENAS_LISTA.insert(0, nueva_resena)
-        return redirect('peliculas:resenas_pelicula', id=id)
-
-    resenas_de_esta_pelicula = []
-    for resena in RESENAS_LISTA:
-        if resena.get("pelicula_id") == id:
-            resenas_de_esta_pelicula.append(resena)
-
-    contexto = {
-        'pelicula': pelicula,
-        'resenas': resenas_de_esta_pelicula
-    }
-    return render(request, 'peliculas/resenas_usuarios.html', contexto)
+        return redirect("peliculas:resenas_pelicula", id=id)
