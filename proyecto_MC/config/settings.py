@@ -60,7 +60,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates'],# Le indica a Django buscar en la raíz
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

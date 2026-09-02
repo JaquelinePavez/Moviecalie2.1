@@ -82,11 +82,21 @@ def detalle_pelicula(request, id):
             pelicula = p
             break
 
-    # separo el reparto en una lista para poder recorrerla con {% for %}
     reparto = []
-    if pelicula and pelicula["reparto"]:
-        reparto = [nombre.strip() for nombre in pelicula["reparto"].split(",") if nombre.strip()]
-
+    # Verifica que la película exista y que tenga datos en 'reparto'
+    if pelicula is not None and pelicula["reparto"] is not None and pelicula["reparto"] != "":
+        
+        # Corta el texto por las comas
+        lista_de_actores = pelicula["reparto"].split(",")
+        
+        for nombre in lista_de_actores:
+            # Elimina espacios vacios a los lados
+            nombre_limpio = nombre.strip()
+            
+            #agrega el nombre si NO es un texto vacío
+            if nombre_limpio != "":
+                reparto.append(nombre_limpio)
+        
     contexto = {
         "titulo_pagina": "Detalle de la pelicula",
         "pelicula": pelicula,
@@ -101,7 +111,7 @@ RESENAS_LISTA = [
         'pelicula_id': 1,
         'usuario': 'George_Allison',
         'calificacion': '9.0 / 10',
-        'foto_usuario': 'recursos/imagenes/usuarios/usuario_1.jpg',
+        'foto_usuario': 'peliculas/recursos/imagenes/usuarios/usuario_1.jpg',
         'titulo': 'BUENISIMA',
         'contenido': 'F1 es un espectáculo visual imponente que redefine el cine de automovilismo...',
         'reportes': 0,
@@ -111,7 +121,7 @@ RESENAS_LISTA = [
         'pelicula_id': 1,
         'usuario': 'Cinefilo88',
         'calificacion': '3.0 / 10',
-        'foto_usuario': 'recursos/imagenes/usuarios/usuario_2.jpg',
+        'foto_usuario': 'peliculas/recursos/imagenes/usuarios/usuario_2.jpg',
         'titulo': 'REPETITIVA',
         'contenido': 'Aunque la acción es impecable, la banda sonora de Hans Zimmer se siente algo repetitiva...',
         'reportes': 2,
@@ -147,7 +157,7 @@ def detalle_resenas_pelicula(request, id):
             "pelicula_id": id,
             "usuario": request.POST.get("usuario", "Usuario Anónimo"),
             "calificacion": f"{request.POST.get('calificacion', '10')} / 10",
-            "foto_usuario": "recursos/imagenes/usuarios/usuario_3.jpg",
+            "foto_usuario": "peliculas/recursos/imagenes/usuarios/usuario_3.jpg",
             "titulo": request.POST.get("titulo"),
             "contenido": request.POST.get("contenido"),
             "reportes": 0,
