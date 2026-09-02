@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="{% static 'peliculas/css/agregar.css' %}">
 {% endblock %}
 
+{% block navegacion %}
+    {% include "componentes/navegacion.html" %}
+{% endblock %}
+
 {% block content %} <!-- inicia contenido que se va mostrar-->
 
     <h1 class="titulo-principal">{{ titulo_pagina }}</h1>
