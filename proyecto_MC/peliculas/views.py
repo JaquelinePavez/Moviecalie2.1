@@ -33,11 +33,10 @@ peliculas = [
     
 ]
 
-def inicio(request):
-    contexto = {"titulo_pagina": "Inicio",
-                "peliculas": peliculas
-                }
-    return render(request, "peliculas/inicio.html", contexto)
+# Movi la vista inicio() a proyecto_MC/views.py,
+# por que es el inicio general del proyecto.
+
+# Las demás vistas estan bien en aplicación porque son funcionalidades específicas de películas.
 
 def agregar_pelicula(request):
     if request.method == "POST":
