@@ -9,27 +9,26 @@
     <link rel="stylesheet" href="{% static 'peliculas/css/agregar.css' %}">
 {% endblock %}
 
-{% block content %}
+{% block content %} <!-- inicia contenido que se va mostrar-->
 
-<h1 class="titulo-principal">{{ titulo_pagina }}</h1>
+    <h1 class="titulo-principal">{{ titulo_pagina }}</h1>
 
-<form method="post" class="categoria-bloque">
-    {% csrf_token %} <!-- Valida que el usuario real envió este formulario -->
-    <label class="form-label">Imagen (URL): <input type="url" name="imagen"></label>
-    <label class="form-label">Título: <input type="text" name="titulo" required></label>
-    <label class="form-label">Año de estreno: <input type="number" name="anio" required></label>
-    <label class="form-label">Duración (min): <input type="number" name="duracion"></label>
-    
-    <label class="form-label">Calificación general: <input type="number" step="0.1" name="calificacion"></label>
-    <label class="form-label">Sinopsis: <textarea name="sinopsis"></textarea></label>
-    <label class="form-label">Género: <input type="text" name="genero" required></label>
-    <label class="form-label">Reparto (separado por comas): <textarea name="reparto"></textarea></label>
-    <label class="form-label">Clasificación por edad: <input type="text" name="clasificacion"></label>
-    <label class="form-label">Plataforma: <input type="text" name="plataforma"></label>
-    <button type="submit" class="accion_publicar">Guardar</button>
-    
-    <a href="{% url 'inicio' %}" class="btn">Volver al inicio</a>
-</form>
+    <form method="post" class="categoria-bloque">
+        <label class="form-label">Imagen (URL): <input type="url" name="imagen"></label>
+        <label class="form-label">Título: <input type="text" name="titulo" required></label>
+        <label class="form-label">Año de estreno: <input type="number" name="anio" required></label>
+        <label class="form-label">Duración (min): <input type="number" name="duracion"></label>
+        
+        <label class="form-label">Calificación general: <input type="number" step="0.1" name="calificacion"></label>
+        <label class="form-label">Sinopsis: <textarea name="sinopsis"></textarea></label>
+        <label class="form-label">Género: <input type="text" name="genero" required></label>
+        <label class="form-label">Reparto (separado por comas): <textarea name="reparto"></textarea></label>
+        <label class="form-label">Clasificación por edad: <input type="text" name="clasificacion"></label>
+        <label class="form-label">Plataforma: <input type="text" name="plataforma"></label>
+        <button type="submit" class="accion_publicar">Guardar</button>
+        
+        <a href="{% url 'inicio' %}" class="btn">Volver al inicio</a>
+    </form>
 
-{% endblock %}
+{% endblock %} <!-- fin de contenido->
 <!-- desapareció todo esto lo demas por que esta en la base y yo lo estoy heredando, para evitar duplicar codigo-->
