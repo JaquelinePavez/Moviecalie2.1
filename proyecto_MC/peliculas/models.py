@@ -33,10 +33,8 @@ class Actor(models.Model):
                 raise ValidationError(
                     f"No se puede eliminar a {self} porque es el único actor de "
                     f"{pelicula.titulo}"
-                )
 
-        # Si no es el único actor, se puede borrar
-        super().delete()
+                ).delete() # Si no es el único director, se puede borrar.
 
 # Modelo para guardar los directores
 class Director(models.Model): 
@@ -64,10 +62,8 @@ class Director(models.Model):
                 raise ValidationError(
                     f"No se puede eliminar a {self} porque es el único director de "
                     f"{pelicula.titulo}"
-                )
-
-        # Si no es el único director, se puede borrar
-        super().delete()
+                    
+                ).delete() # Si no es el único director, se puede borrar.
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
