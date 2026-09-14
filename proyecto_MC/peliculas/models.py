@@ -6,7 +6,8 @@ from django.db.models import Q
 # Modelo para guardar los actores
 class Actor(models.Model): 
     nombre = models.CharField(max_length=100) 
-    apellido = models.CharField(max_length=100) 
+    apellido = models.CharField(max_length=100)
+    edad = models.PositiveIntegerField(null=True, blank=True) #Prueba de campo opcional.
 
     class Meta: 
         constraints = [
@@ -51,6 +52,22 @@ class Director(models.Model):
 
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
+
+    def delete(self):
+        # Revisamos las películas donde aparece el director
+        for pelicula in self.peliculas.all():
+
+            #Si esta película tiene un solo director
+            if pelicula.directores.count() == 1:
+
+                # No dejamos eliminar al director
+                raise ValidationError(
+                    f"No se puede eliminar a {self} porque es el único director de "
+                    f"{pelicula.titulo}"
+                )
+
+        # Si no es el único director, se puede borrar
+        super().delete()
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
