@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator #controla extensiones de archivos
 from django.db import models #me da las herramientas para crear los modelos
 #me ayuda a construir condiciones
@@ -22,7 +23,7 @@ class Actor(models.Model):
 
     #*args = Otros parámetros que pueden venir
     #**kwargs= Otros parámetros con nombre que pueden venir
-    def delete(self):
+    def delete(self, *args, **kwargs):
         # Revisamos las películas donde aparece el actor
         for pelicula in self.peliculas.all():
 
@@ -35,8 +36,8 @@ class Actor(models.Model):
                     f"{pelicula.titulo}"
                 )
 
-        # Si no es el único actor, se puede borrar
-        super().delete()
+        # Si no es el único actor en ninguna película, se puede borrar
+        super().delete(*args, **kwargs)
 
 # Modelo para guardar los directores
 class Director(models.Model): 
@@ -53,7 +54,7 @@ class Director(models.Model):
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         # Revisamos las películas donde aparece el director
         for pelicula in self.peliculas.all():
 
@@ -66,8 +67,8 @@ class Director(models.Model):
                     f"{pelicula.titulo}"
                 )
 
-        # Si no es el único director, se puede borrar
-        super().delete()
+        # Si no es el único director en ninguna película, se puede borrar
+        super().delete(*args, **kwargs)
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
@@ -176,4 +177,4 @@ class Resena(models.Model):
             )
 
     def __str__(self):
-        return f"Reseña de {self.nombre_usuario} para {self.pelicula.titulo}"
+        return f"Reseña de {self.nombre_usuario} para {self.pelicula_id.titulo}"
