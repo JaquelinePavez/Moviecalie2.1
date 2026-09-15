@@ -120,7 +120,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
         ordering = ["-fecha_estreno", "titulo"]
 
         constraints = [  #Lista de reglas que Django traduce en restricciones reales de la base de datos
-            models.UniqueConstraint( #convinacion unica de titulo y fecha de estreno
+            models.UniqueConstraint( #combinacion unica de titulo y fecha de estreno
                 fields=["titulo", "fecha_estreno"],
                 name="pelicula_unica_por_titulo_y_fecha", #Se coloca un name unico, para que la base de datos pueda identificar que regla se violo si falla
             ),
@@ -150,3 +150,30 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     def __str__(self):   #le dice a python como convertir un objeto pelicula en texto legible
         
            return f"{self.titulo} ({self.fecha_estreno.year})"
+
+
+class Resena(models.Model):
+    id_resena = models.AutoField(primary_key=True,)
+    pelicula_id = models.ForeignKey(Pelicula,on_delete=models.CASCADE,related_name="resenas",null=False, blank=False,)
+    nombre_usuario= models.CharField(max_length=100, null=False, blank=False,)
+    texto = models.TextField(null=False,blank=False,)
+    calificacion = models.DecimalField(max_digits=3, decimal_places=1,null=False,blank=False,)
+    class Meta: #restricciones
+        constraints = [
+            models.UniqueConstraint(
+                fields=["pelicula_id", "nombre_usuario"], name="unica_reseña_por_usuario_y_pelicula",
+                ),
+            models.CheckConstraint(
+                condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10.0), name = "resena_calificacion_en_rango",
+            ),
+        ]
+    #validacion de palabras del texto para contar la cantidad de palabras
+    def clean(self):
+        cantidad_palabras = len(self.texto.split()) #divide el texto en una lista de palabras, separando por espacios en blanco. y cuenta cuantos elementos(palabras) hay en total
+        if cantidad_palabras < 2 or cantidad_palabras > 15000:
+            raise ValidationError(
+                {"texto": "El texto de la reseña debe tener entre 2 y 15.000 palabras."} #le indica con un mensaje el error y "texto" le indica a que campo especifico asociar el error, esto ayuda a que en el formulario le aparesca abajo del campo texto el mensaje de error
+            )
+
+    def __str__(self):
+        return f"Reseña de {self.nombre_usuario} para {self.pelicula.titulo}"

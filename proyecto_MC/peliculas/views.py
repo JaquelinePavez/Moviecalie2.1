@@ -166,3 +166,44 @@ def detalle_resenas_pelicula(request, id):
 
         RESENAS_LISTA.insert(0, nueva_resena)
         return redirect("peliculas:resenas_pelicula", id=id)
+
+
+#----------------------------------------------------------------------------------#
+#Nueva vista para implementar con bbdd
+""" from django.core.exceptions import ValidationError
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Pelicula, Resena
+
+
+def detalle_resenas_pelicula(request, id):
+    pelicula = get_object_or_404(Pelicula, id=id) #si un id de una pelicula no se encuentra, devuelve 404 
+
+    if request.method == "GET":
+        resenas_de_esta_pelicula = pelicula.resenas.order_by("-id_resena") #devuelve solo las reseñas de esa pelicula, le agrega el criterio de orden , descendente (la mas reciente primero)
+
+        contexto = {
+            "pelicula": pelicula,
+            "resenas": resenas_de_esta_pelicula,
+        }
+        
+        return render(request, "peliculas/resenas_usuarios.html", contexto)
+
+    if request.method == "POST":
+        nueva_resena = Resena(
+            pelicula=pelicula,
+            nombre_usuario=request.POST.get("usuario", "Usuario Anónimo"),
+            texto=request.POST.get("contenido"),
+            calificacion=request.POST.get("calificacion"),
+        )
+        try:#dispara las validacion para el conteo de palabras definidad en models con clean()
+            nueva_resena.full_clean()
+            nueva_resena.save()
+        except ValidationError as errores:#si algo falla , vuelve a renderizar el mismo template pasando errores en el contexto en vez de guardar datos invalidos.
+            contexto = {
+                "pelicula": pelicula,
+                "resenas": pelicula.resenas.order_by("-id_resena"),
+                "errores": errores.message_dict,
+            }
+            return render(request, "peliculas/resenas_usuarios.html", contexto)
+
+        return redirect("peliculas:resenas_pelicula", id=id) """
