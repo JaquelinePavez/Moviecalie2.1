@@ -1,6 +1,6 @@
 {
   "name": "Entorno Django",
-  "image": "://microsoft.com",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "customizations": {
     "vscode": {
       "extensions": [
