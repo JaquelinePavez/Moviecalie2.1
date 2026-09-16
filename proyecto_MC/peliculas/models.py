@@ -21,9 +21,7 @@ class Actor(models.Model):
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
 
-    #*args = Otros parámetros que pueden venir
-    #**kwargs= Otros parámetros con nombre que pueden venir
-    def delete(self, *args, **kwargs):
+    def delete(self):
         # Revisamos las películas donde aparece el actor
         for pelicula in self.peliculas.all():
 
@@ -34,10 +32,7 @@ class Actor(models.Model):
                 raise ValidationError(
                     f"No se puede eliminar a {self} porque es el único actor de "
                     f"{pelicula.titulo}"
-                )
-
-        # Si no es el único actor en ninguna película, se puede borrar
-        super().delete(*args, **kwargs)
+                ).delete() # Si no es el único actor en ninguna película, se puede borrar
 
 # Modelo para guardar los directores
 class Director(models.Model): 
@@ -54,7 +49,7 @@ class Director(models.Model):
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
 
-    def delete(self, *args, **kwargs):
+    def delete(self):
         # Revisamos las películas donde aparece el director
         for pelicula in self.peliculas.all():
 
@@ -65,10 +60,7 @@ class Director(models.Model):
                 raise ValidationError(
                     f"No se puede eliminar a {self} porque es el único director de "
                     f"{pelicula.titulo}"
-                )
-
-        # Si no es el único director en ninguna película, se puede borrar
-        super().delete(*args, **kwargs)
+                ).delete() # Si no es el único director en ninguna película, se puede borrar
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
@@ -94,6 +86,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     clasificacion = models.CharField(
         max_length=5,
         choices=Clasificacion.choices,
+        default=Clasificacion.ATP, #Si no me dicen la clasificación, voy a considerar ATP
            )
     fecha_registro = models.DateTimeField(auto_now_add=True) #colca y guarda automaticamente la fecha y la hora actual
    
@@ -104,13 +97,21 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
                                     #— acá usamos una ya hecha por el framework en vez de escribir la nuestra, 
                                     #porque el caso ("solo estos 4 formatos") es común y ya está resuelto.
 
-    calificacion = models.DecimalField(max_digits=3, decimal_places=1)
-    #max_digits=3 es el total de dígitos que se guardan (contando antes y después de la coma), y decimal_places=1 cuántos van después de la coma. Con estos valores, el rango representable va de 0.0 a 99.9
-
+    calificacion = models.DecimalField( #max_digits=3 es el total de dígitos que se guardan (contando antes y después de la coma), y 
+        # decimal_places=1 cuántos van después de la coma. Con estos valores, el rango representable va de 0.0 a 99.9
+        max_digits=3, 
+        decimal_places=1
+        default=0.0) #Si no cargo una calificación
+            
     # Una película puede tener varios actores 
-    actores = models.ManyToManyField(Actor, related_name="peliculas" ) 
+    actores = models.ManyToManyField(
+        Actor, 
+        related_name="peliculas" ) # permite acceder a la relación en sentido inverso
+    
     # Una película puede tener varios directores 
-    directores = models.ManyToManyField(Director, related_name="peliculas" )
+    directores = models.ManyToManyField(
+        Director, 
+        related_name="peliculas" ) # permite acceder a la relación en sentido inverso
 
     #empezamos a configurar el comportamiento y las reglas
     class Meta:
