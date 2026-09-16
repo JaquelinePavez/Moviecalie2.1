@@ -21,18 +21,17 @@ class Actor(models.Model):
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
 
-    def delete(self):
-        # Revisamos las películas donde aparece el actor
+    def delete(self, *args, **kwargs):
+        # reviso las peliculas donde aparece el actor
         for pelicula in self.peliculas.all():
-
-            #Si esta película tiene un solo actor
+            # si esta pelicula tiene un solo actor, no lo dejo borrar
             if pelicula.actores.count() == 1:
-
-                # No dejamos eliminar al actor
                 raise ValidationError(
                     f"No se puede eliminar a {self} porque es el único actor de "
                     f"{pelicula.titulo}"
-                ).delete() # Si no es el único actor en ninguna película, se puede borrar
+                )
+        # si no es el unico en ninguna, lo borro
+        return super().delete(*args, **kwargs)
 
 # Modelo para guardar los directores
 class Director(models.Model): 
@@ -49,18 +48,17 @@ class Director(models.Model):
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
 
-    def delete(self):
-        # Revisamos las películas donde aparece el director
+    def delete(self, *args, **kwargs):
+        # reviso las peliculas donde aparece el director
         for pelicula in self.peliculas.all():
-
-            #Si esta película tiene un solo director
+            # si esta pelicula tiene un solo director, no lo dejo borrar
             if pelicula.directores.count() == 1:
-
-                # No dejamos eliminar al director
                 raise ValidationError(
                     f"No se puede eliminar a {self} porque es el único director de "
                     f"{pelicula.titulo}"
-                ).delete() # Si no es el único director en ninguna película, se puede borrar
+                )
+        # si no es el unico en ninguna, lo borro
+        return super().delete(*args, **kwargs)
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
@@ -78,10 +76,10 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
         MAS_16 = "M16", "Apta para mayores de 16 años"
         MAS_18 = "M18", "Apta para mayores de 18 años"
 
-    titulo = models.CharField(max_length=150) 
-    sinopsis = models.TextField() #django establece de manera predeterminado los valores por defecto null=false y blank=false no requiere, se puede o no colocar
-    duracion_minutos = models.PositiveIntegerField()
-    fecha_estreno = models.DateField() #guarda solo fechas (sin hora)
+    titulo = models.CharField(max_length=150, null=False, blank=False) 
+    sinopsis = models.TextField(null=False, blank=False) #django establece de manera predeterminado los valores por defecto null=false y blank=false no requiere, se puede o no colocar
+    duracion_minutos = models.PositiveIntegerField(null=False, blank=False)
+    fecha_estreno = models.DateField(null=False, blank=False) #guarda solo fechas (sin hora)
     url_trailer = models.URLField(blank=True)
     clasificacion = models.CharField(
         max_length=5,
@@ -100,8 +98,9 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     calificacion = models.DecimalField( #max_digits=3 es el total de dígitos que se guardan (contando antes y después de la coma), y 
         # decimal_places=1 cuántos van después de la coma. Con estos valores, el rango representable va de 0.0 a 99.9
         max_digits=3, 
-        decimal_places=1
-        default=0.0) #Si no cargo una calificación
+        decimal_places=1,
+        default=0.1
+    ) #Si no cargo una calificación
             
     # Una película puede tener varios actores 
     actores = models.ManyToManyField(
