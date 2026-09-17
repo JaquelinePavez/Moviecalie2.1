@@ -170,7 +170,7 @@ def detalle_resenas_pelicula(request, id):
 
 #----------------------------------------------------------------------------------#
 #Nueva vista para implementar con bbdd
-""" from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Pelicula, Resena
 
@@ -206,4 +206,4 @@ def detalle_resenas_pelicula(request, id):
             }
             return render(request, "peliculas/resenas_usuarios.html", contexto)
 
-        return redirect("peliculas:resenas_pelicula", id=id) """
+        return redirect("peliculas:resenas_pelicula", id=id)
