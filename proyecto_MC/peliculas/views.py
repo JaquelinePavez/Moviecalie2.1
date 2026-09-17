@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
-
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from .models import Pelicula, Resena
 peliculas = [
     {
         "id": 1,
@@ -128,52 +130,6 @@ RESENAS_LISTA = [
         'comentarios_count': 5
     }
 ]
-
-def detalle_resenas_pelicula(request, id):
-
-    # Buscar la película
-    pelicula = None
-    for peli in peliculas:
-        if peli["id"] == id:
-            pelicula = peli
-            break
-
-    # GET: mostrar las reseñas de la película
-    if request.method == "GET":
-        resenas_de_esta_pelicula = []
-        for resena in RESENAS_LISTA:
-            if resena.get("pelicula_id") == id:
-                resenas_de_esta_pelicula.append(resena)
-
-        contexto = {
-            "pelicula": pelicula,
-            "resenas": resenas_de_esta_pelicula
-        }
-        return render(request, "peliculas/resenas_usuarios.html", contexto)
-
-    # POST: agregar una nueva reseña
-    if request.method == "POST":
-        nueva_resena = {
-            "pelicula_id": id,
-            "usuario": request.POST.get("usuario", "Usuario Anónimo"),
-            "calificacion": f"{request.POST.get('calificacion', '10')} / 10",
-            "foto_usuario": "peliculas/recursos/imagenes/usuarios/usuario_3.jpg",
-            "titulo": request.POST.get("titulo"),
-            "contenido": request.POST.get("contenido"),
-            "reportes": 0,
-            "comentarios_count": 0
-        }
-
-        RESENAS_LISTA.insert(0, nueva_resena)
-        return redirect("peliculas:resenas_pelicula", id=id)
-
-
-#----------------------------------------------------------------------------------#
-#Nueva vista para implementar con bbdd
-from django.core.exceptions import ValidationError
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Pelicula, Resena
-
 
 def detalle_resenas_pelicula(request, id):
     pelicula = get_object_or_404(Pelicula, id=id) #si un id de una pelicula no se encuentra, devuelve 404 
