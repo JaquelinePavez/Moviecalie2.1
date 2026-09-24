@@ -8,12 +8,14 @@ from django.db.models import Q
 class Actor(models.Model): 
     nombre = models.CharField(max_length=100) 
     apellido = models.CharField(max_length=100)
-    edad = models.PositiveIntegerField(null=True, blank=True) #Prueba de campo opcional.
+    #edad = models.PositiveIntegerField(null=True, blank=True) #Prueba de campo opcional.
+    nacionalidad = models.CharField(max_length=100)
+    anio_de_nacimiento = models.DateField()
 
     class Meta: 
         constraints = [
             models.UniqueConstraint( 
-            fields=["nombre", "apellido"], 
+            fields=["nombre", "apellido", "nacionalidad", "anio_de_nacimiento"], 
             name="actor_unico" 
             ) 
         ]
@@ -37,10 +39,12 @@ class Actor(models.Model):
 class Director(models.Model): 
     nombre = models.CharField(max_length=100) 
     apellido = models.CharField(max_length=100) 
+    nacionalidad = models.CharField(max_length=100)
+    anio_de_nacimiento = models.DateField()
     class Meta: 
         constraints = [ 
             models.UniqueConstraint( 
-            fields=["nombre", "apellido"], 
+            fields=["nombre", "apellido", "nacionalidad", "anio_de_nacimiento"], 
             name="director_unico" 
             ) 
         ] 
