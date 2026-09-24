@@ -105,7 +105,9 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     # Una película puede tener varios actores 
     actores = models.ManyToManyField(
         Actor, 
-        related_name="peliculas" ) # permite acceder a la relación en sentido inverso
+        related_name="peliculas",
+        blank=False, #agregue para que no deje guardar vacio este campo desde el formulario.tampoco para que se guarde null, obliga a que si o si se guarde al menos un actor.
+        ) # permite acceder a la relación en sentido inverso
     
     # Una película puede tener varios directores 
     directores = models.ManyToManyField(
