@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator #controla extensiones de archivos
 from django.db import models #me da las herramientas para crear los modelos
+from django.contrib.auth.models import User
 #me ayuda a construir condiciones
 from django.db.models import Q
 
@@ -8,14 +9,21 @@ from django.db.models import Q
 class Actor(models.Model): 
     nombre = models.CharField(max_length=100) 
     apellido = models.CharField(max_length=100)
-    edad = models.PositiveIntegerField(null=True, blank=True) #Prueba de campo opcional.
+    #edad = models.PositiveIntegerField(null=True, blank=True) #Prueba de campo opcional.
+    nacionalidad = models.CharField(max_length=100)
+    anio_de_nacimiento = models.DateField()
 
     class Meta: 
         constraints = [
-            models.UniqueConstraint( 
-            fields=["nombre", "apellido"], 
-            name="actor_unico" 
-            ) 
+            models.UniqueConstraint(
+                fields=[
+                    "nombre",
+                    "apellido",
+                    "nacionalidad",
+                    "anio_de_nacimiento"
+                ],
+                name="actor_unico"
+            )
         ]
 
     def __str__(self): 
@@ -37,12 +45,19 @@ class Actor(models.Model):
 class Director(models.Model): 
     nombre = models.CharField(max_length=100) 
     apellido = models.CharField(max_length=100) 
+    nacionalidad = models.CharField(max_length=100)
+    anio_de_nacimiento = models.DateField()
     class Meta: 
-        constraints = [ 
-            models.UniqueConstraint( 
-            fields=["nombre", "apellido"], 
-            name="director_unico" 
-            ) 
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "nombre",
+                    "apellido",
+                    "nacionalidad",
+                    "anio_de_nacimiento"
+                ],
+                name="actor_unico"
+            )
         ] 
 
     def __str__(self): 
@@ -59,6 +74,8 @@ class Director(models.Model):
                 )
         # si no es el unico en ninguna, lo borro
         return super().delete(*args, **kwargs)
+
+    
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
@@ -95,7 +112,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
                                     #— acá usamos una ya hecha por el framework en vez de escribir la nuestra, 
                                     #porque el caso ("solo estos 4 formatos") es común y ya está resuelto.
 
-    calificacion = models.DecimalField( #max_digits=3 es el total de dígitos que se guardan (contando antes y después de la coma), y 
+    calificacion_promedio = models.DecimalField( #max_digits=3 es el total de dígitos que se guardan (contando antes y después de la coma), y 
         # decimal_places=1 cuántos van después de la coma. Con estos valores, el rango representable va de 0.0 a 99.9
         max_digits=3, 
         decimal_places=1,
@@ -105,9 +122,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     # Una película puede tener varios actores 
     actores = models.ManyToManyField(
         Actor, 
-        related_name="peliculas",
-        blank=False, #agregue para que no deje guardar vacio este campo desde el formulario.tampoco para que se guarde null, obliga a que si o si se guarde al menos un actor.
-        ) # permite acceder a la relación en sentido inverso
+        related_name="peliculas" ) # permite acceder a la relación en sentido inverso
     
     # Una película puede tener varios directores 
     directores = models.ManyToManyField(
@@ -161,6 +176,15 @@ class Resena(models.Model):
     nombre_usuario= models.CharField(max_length=100, null=False, blank=False,)
     texto = models.TextField(null=False,blank=False,)
     calificacion = models.DecimalField(max_digits=3, decimal_places=1,null=False,blank=False,)
+    
+    # Relaciona la reseña con el usuario que la creó.
+    # Un usuario puede tener muchas reseñas.
+    autor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="resenas"
+    )
+
     class Meta: #restricciones
         constraints = [
             models.UniqueConstraint(
@@ -180,3 +204,15 @@ class Resena(models.Model):
 
     def __str__(self):
         return f"Reseña de {self.nombre_usuario} para {self.pelicula_id.titulo}"
+
+# Modelo para guardar los perfiles
+class Perfil(models.Model):
+    usuario = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="perfil"
+    )
+
+    foto_de_perfil = models.ImageField(...)
+    biografia = models.TextField(...)
+    generos_favoritos = models.TextField(null=True, blank=True)
