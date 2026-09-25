@@ -56,7 +56,7 @@ class Director(models.Model):
                     "nacionalidad",
                     "anio_de_nacimiento"
                 ],
-                # name="actor_unico"
+
                 name="director_unico"
             )
         ] 
@@ -132,12 +132,14 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     # Una película puede tener varios actores 
     actores = models.ManyToManyField(
         Actor, 
-        related_name="peliculas" ) # permite acceder a la relación en sentido inverso
+        related_name="peliculas" ,
+        blank=False) # permite acceder a la relación en sentido inverso
     
     # Una película puede tener varios directores 
     directores = models.ManyToManyField(
         Director, 
-        related_name="peliculas" ) # permite acceder a la relación en sentido inverso
+        related_name="peliculas",
+        blank=False ) # permite acceder a la relación en sentido inverso
 
     # ============================================================
     # RELACIÓN PELÍCULA / GÉNERO
@@ -183,16 +185,18 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
                 name="pelicula_fecha_estreno_valida",
             ),
             models.CheckConstraint(
-            # SIGNIFICADO DE CALIFICACIÓN EN PELÍCULA
-            #    La calificación individual pertenece a Resena.calificacion.
-            #    En Pelicula se almacena el promedio de las reseñas mediante
-            #    el campo calificacion_promedio.
-            #      ANTES:
-            #    condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10), //correccion
-            #    name="pelicula_calificacion_en_rango",
-            #     AHORA:
+                # SIGNIFICADO DE CALIFICACIÓN EN PELÍCULA
+                # La calificación individual pertenece a Resena.calificacion.
+                # En Pelicula se almacena el promedio de las reseñas mediante
+                # el campo calificacion_promedio.
+                #
+                # ANTES:
+                # condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10),
+                # name="pelicula_calificacion_en_rango",
+                #
+                # AHORA:
                 condition=Q(calificacion_promedio__gte=0.1) & Q(calificacion_promedio__lte=10),
-                name="pelicula_calificacion_promedio_en_rango",
+                name="pelicula_calificacion_en_rango",
             ),
         ]
 
@@ -204,7 +208,6 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
 class Resena(models.Model):
     id_resena = models.AutoField(primary_key=True,)
     pelicula_id = models.ForeignKey(Pelicula,on_delete=models.CASCADE,related_name="resenas",null=False, blank=False,)
-    nombre_usuario= models.CharField(max_length=100, null=False, blank=False,)
     texto = models.TextField(null=False,blank=False,)
     calificacion = models.DecimalField(max_digits=3, decimal_places=1,null=False,blank=False,)
     
@@ -219,7 +222,7 @@ class Resena(models.Model):
     class Meta: #restricciones
         constraints = [
             models.UniqueConstraint(
-                fields=["pelicula_id", "nombre_usuario"], name="unica_reseña_por_usuario_y_pelicula",
+                fields=["pelicula_id", "autor"], name="unica_reseña_por_usuario_y_pelicula",
                 ),
             models.CheckConstraint(
                 condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10.0), name = "resena_calificacion_en_rango",
@@ -234,7 +237,7 @@ class Resena(models.Model):
             )
 
     def __str__(self):
-        return f"Reseña de {self.nombre_usuario} para {self.pelicula_id.titulo}"
+        return f"Reseña de {self.autor.username} para {self.pelicula_id.titulo}"
 
 # Modelo para guardar los perfiles
 class Perfil(models.Model):
@@ -244,6 +247,10 @@ class Perfil(models.Model):
         related_name="perfil"
     )
 
-    foto_de_perfil = models.ImageField(...)
-    biografia = models.TextField(...)
+    foto_de_perfil = models.ImageField(
+        upload_to="static/peliculas/recursos/imagenes/perfiles/fotos/", #crear carpeta de estos dos ultimos perfiles/fotos para almacenar las fotos de los usuarios
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])],
+        blank=True,
+    )
+    biografia = models.TextField(blank=True)
     generos_favoritos = models.TextField(null=True, blank=True)
