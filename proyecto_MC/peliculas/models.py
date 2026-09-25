@@ -56,7 +56,8 @@ class Director(models.Model):
                     "nacionalidad",
                     "anio_de_nacimiento"
                 ],
-                name="actor_unico"
+                # name="actor_unico"
+                name="director_unico"
             )
         ] 
 
@@ -75,7 +76,16 @@ class Director(models.Model):
         # si no es el unico en ninguna, lo borro
         return super().delete(*args, **kwargs)
 
-    
+# ============================================================
+# DEFINICIÓN DE GÉNERO
+# Un género puede estar asociado a varias películas y una
+# película puede tener varios géneros.
+class Genero(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nombre
+# ============================================================
 
 
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
@@ -129,6 +139,19 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
         Director, 
         related_name="peliculas" ) # permite acceder a la relación en sentido inverso
 
+    # ============================================================
+    # RELACIÓN PELÍCULA / GÉNERO
+    # Una película puede tener varios géneros.
+    # related_name="peliculas" permite acceder desde un género
+    # a todas las películas asociadas:
+    # genero.peliculas.all()
+    generos = models.ManyToManyField(
+        Genero,
+        related_name="peliculas", # permite acceder a la relación en sentido inverso
+        blank=True # permite que una película no tenga géneros asignados
+    )
+    # ============================================================
+
     #empezamos a configurar el comportamiento y las reglas
     class Meta:
         #le dice a Django "cuando alguien pida Pelicula.objects.all() 
@@ -160,8 +183,16 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
                 name="pelicula_fecha_estreno_valida",
             ),
             models.CheckConstraint(
-                condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10),
-                name="pelicula_calificacion_en_rango",
+            # SIGNIFICADO DE CALIFICACIÓN EN PELÍCULA
+            #    La calificación individual pertenece a Resena.calificacion.
+            #    En Pelicula se almacena el promedio de las reseñas mediante
+            #    el campo calificacion_promedio.
+            #      ANTES:
+            #    condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10), //correccion
+            #    name="pelicula_calificacion_en_rango",
+            #     AHORA:
+                condition=Q(calificacion_promedio__gte=0.1) & Q(calificacion_promedio__lte=10),
+                name="pelicula_calificacion_promedio_en_rango",
             ),
         ]
 
