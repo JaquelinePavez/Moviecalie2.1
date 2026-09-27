@@ -1,164 +1,118 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404
-from .models import Pelicula, Resena
-peliculas = [
-    {
-        "id": 1,
-        "imagen": "https://www.cinematerial.com/p/297x/l94wgadr/f1-the-movie-movie-poster-md.jpg?v=1748905004",
-        "titulo": "F1: La Película",
-        "anio": "2025",
-        "duracion": "155",
-        "calificacion": "8.0",
-        "sinopsis": "Un piloto retirado vuelve a las pistas para mentorear a un joven talento.",
-        "genero": "Drama, Acción",
-        "reparto": "Brad Pitt, Damson Idris, Kerry Condon",
-        "clasificacion": "PG-13",
-        "plataforma": "Cines",
-    },
-    {
-    
-        "id": 2,
-        "imagen": "https://cloudfront-us-east-1.images.arcpublishing.com/infobae/H2DVBWCFAZGYDFWWN4TEASWRZI.jpg",
-        "titulo": "Oppenheimer",
-        "anio": "2023",
-        "duracion": "180",
-        
-        "calificacion": "8.9",
-        "sinopsis": "En tiempos de guerra, el físico J. Robert Oppenheimer lidera el Proyecto Manhattan, una iniciativa secreta para desarrollar la primera bomba atómica de la historia.",
-        "genero": "Biografía, Drama, Historia",
-        "reparto": "Cillian Murphy, Emily Blunt, Matt Damon, Robert Downey Jr.",
-        "clasificacion": "R",
-        "plataforma": "Max"
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
+from django.db.models import Q, Avg  # agregamos Avg
+
+def catalogo_peliculas(request):
+    # Optimiza consultas separadas cargando las relaciones en una sola query
+    queryset = Pelicula.objects.prefetch_related('generos', 'actores', 'directores').all()
+
+    # Parámetros GET : Request.GET (es un diccionario de parametros que recibe desde la URL)
+    query_busqueda = request.GET.get('q', '').strip() #.get busca la clave 'q' .strip borra espacios en blanco
+    genero_id = request.GET.get('genero')
+    clasificacion_seleccionada = request.GET.get('clasificacion')
+    actor_id = request.GET.get('actor')
+    director_id = request.GET.get('director')
+    anio_desde = request.GET.get('anio_desde')
+    anio_hasta = request.GET.get('anio_hasta')
+    min_calificacion = request.GET.get('min_calificacion')
+    orden = request.GET.get('orden', '-fecha_estreno')  # Orden por defecto
+
+    # 1. Búsqueda de texto: si el usuario escribio algo busca el texto 
+    if query_busqueda:
+        queryset = queryset.filter(titulo__icontains=query_busqueda)
+
+    # 2. Filtro exacto por género
+    if genero_id and genero_id.isdigit(): #verifica que sea un numero
+        queryset = queryset.filter(generos__id=genero_id) #el doble__ se utiliza para atravesar las relaciones
+        #filtra pelicula entre todos sus generos relacionados, exista uno con ese id
+
+    # 3. Filtro exacto por clasificación
+    if clasificacion_seleccionada:
+        queryset = queryset.filter(clasificacion=clasificacion_seleccionada)
+
+    # 4. Filtro exacto por actor
+    if actor_id and actor_id.isdigit():
+        queryset = queryset.filter(actores__id=actor_id)
+
+    # 5. Filtro exacto por director
+    if director_id and director_id.isdigit():
+        queryset = queryset.filter(directores__id=director_id)
+
+    # 6. Rango de años, convertido a fechas límite para aprovechar el índice de fecha_estreno
+    if anio_desde and anio_desde.isdigit():
+        queryset = queryset.filter(fecha_estreno__gte=f"{anio_desde}-01-01")
+    if anio_hasta and anio_hasta.isdigit():
+        queryset = queryset.filter(fecha_estreno__lte=f"{anio_hasta}-12-31")
+
+    # 7. Calificación mínima
+    if min_calificacion and min_calificacion.replace('.', '', 1).isdigit():
+        queryset = queryset.filter(calificacion_promedio__gte=float(min_calificacion))
+
+    # 8. Ordenamiento dinámico
+    opciones_orden = { #diccionario que traduce la url con el nombre del campo que django necesita usar
+        'calificacion_desc': '-calificacion_promedio',
+        'calificacion_asc': 'calificacion_promedio',
+        'fecha_desc': '-fecha_estreno',
+        'fecha_asc': 'fecha_estreno',
+        'titulo_asc': 'titulo',
     }
-    
-]
+    criterio_orden = opciones_orden.get(orden, '-fecha_estreno') #devuelve un valor por defecto si no encuentra ninguna de las claves ya conocidas
+    queryset = queryset.distinct().order_by(criterio_orden)#elimina repeticiones antes de ordenar
 
-# Movi la vista inicio() a proyecto_MC/views.py,
-# por que es el inicio general del proyecto.
-
-# Las demás vistas estan bien en aplicación porque son funcionalidades específicas de películas.
-
-#refactorizamos
-def agregar_pelicula(request):
-
-    # GET: mostrar el formulario
-    if request.method == "GET":
-        contexto = {"titulo_pagina": "Agregar nueva pelicula"}
-        return render(request, "peliculas/agregar.html", contexto)
-
-    # POST: procesar los datos enviados por el formulario
-    if request.method == "POST":
-        id_mas_alto = 0
-
-        for p in peliculas:
-            if p["id"] > id_mas_alto:
-                id_mas_alto = p["id"]
-
-        proximo_id = id_mas_alto + 1
-
-        pelicula = {
-            "id": proximo_id,
-            "imagen": request.POST.get("imagen"),
-            "titulo": request.POST.get("titulo"),
-            "anio": request.POST.get("anio"),
-            "duracion": request.POST.get("duracion"),
-            "calificacion": request.POST.get("calificacion"),
-            "sinopsis": request.POST.get("sinopsis"),
-            "genero": request.POST.get("genero"),
-            "reparto": request.POST.get("reparto"),
-            "clasificacion": request.POST.get("clasificacion"),
-            "plataforma": request.POST.get("plataforma"),
-        }
-
-        peliculas.append(pelicula)
-        return redirect("peliculas:detalle", id=pelicula["id"])
-    
-
-def detalle_pelicula(request, id):
-    # busco la pelicula por id dentro de la lista en memoria
-    pelicula = None
-    for p in peliculas:
-        if p["id"] == id:
-            pelicula = p
-            break
-
-    reparto = []
-    # Verifica que la película exista y que tenga datos en 'reparto'
-    if pelicula is not None and pelicula["reparto"] is not None and pelicula["reparto"] != "":
-        
-        # Corta el texto por las comas
-        lista_de_actores = pelicula["reparto"].split(",")
-        
-        for nombre in lista_de_actores:
-            # Elimina espacios vacios a los lados
-            nombre_limpio = nombre.strip()
-            
-            #agrega el nombre si NO es un texto vacío
-            if nombre_limpio != "":
-                reparto.append(nombre_limpio)
-        
-    contexto = {
-        "titulo_pagina": "Detalle de la pelicula",
-        "pelicula": pelicula,
-        "reparto": reparto,
+    context = {
+        'peliculas': queryset,
+        'generos': Genero.objects.all(),
+        'clasificaciones': Pelicula.Clasificacion.choices,
+        'actores': Actor.objects.all(),
+        'directores': Director.objects.all(),
+        'query_busqueda': query_busqueda,
+        'genero_seleccionado': int(genero_id) if genero_id and genero_id.isdigit() else None,
+        'clasificacion_seleccionada': clasificacion_seleccionada or '',
+        'actor_seleccionado': int(actor_id) if actor_id and actor_id.isdigit() else None,
+        'director_seleccionado': int(director_id) if director_id and director_id.isdigit() else None,
+        'anio_desde': anio_desde or '',
+        'anio_hasta': anio_hasta or '',
+        'min_calificacion': min_calificacion or '',
+        'orden_seleccionado': orden,
     }
-    return render(request, "peliculas/detalle.html", contexto)
+    return render(request, 'peliculas/catalogo.html', context)
 
-#------------------------------------------------------------------------------------------------#
-# Lista global temporal (simula la base de datos) para que persista la informacion
-RESENAS_LISTA = [
-    {
-        'pelicula_id': 1,
-        'usuario': 'George_Allison',
-        'calificacion': '9.0 / 10',
-        'foto_usuario': 'peliculas/recursos/imagenes/usuarios/usuario_1.jpg',
-        'titulo': 'BUENISIMA',
-        'contenido': 'F1 es un espectáculo visual imponente que redefine el cine de automovilismo...',
-        'reportes': 0,
-        'comentarios_count': 50
-    },
-    {
-        'pelicula_id': 1,
-        'usuario': 'Cinefilo88',
-        'calificacion': '3.0 / 10',
-        'foto_usuario': 'peliculas/recursos/imagenes/usuarios/usuario_2.jpg',
-        'titulo': 'REPETITIVA',
-        'contenido': 'Aunque la acción es impecable, la banda sonora de Hans Zimmer se siente algo repetitiva...',
-        'reportes': 2,
-        'comentarios_count': 5
-    }
-]
 
+@login_required  # decorador. chequea que el request.user este autenticado antes de mostrar el detalle. verifica que haya un usuario real.
 def detalle_resenas_pelicula(request, id):
-    pelicula = get_object_or_404(Pelicula, id=id) #si un id de una pelicula no se encuentra, devuelve 404 
+    pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
 
     if request.method == "GET":
-        resenas_de_esta_pelicula = pelicula.resenas.order_by("-id_resena") #devuelve solo las reseñas de esa pelicula, le agrega el criterio de orden , descendente (la mas reciente primero)
+        resenas_de_esta_pelicula = pelicula.resenas.order_by("-id_resena")  # devuelve solo las reseñas de esa pelicula, le agrega el criterio de orden, descendente (la mas reciente primero)
+        promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] #calcula un valor resumen del promedio de todas las resenas de una pelicula
 
         contexto = {
             "pelicula": pelicula,
             "resenas": resenas_de_esta_pelicula,
+            "promedio_resenas": promedio_resenas,
         }
-        
+
         return render(request, "peliculas/resenas_usuarios.html", contexto)
 
     if request.method == "POST":
-        nueva_resena = Resena(
+        nueva_resena = Resena( #crea el objeto en memoria
             pelicula=pelicula,
-            nombre_usuario=request.POST.get("usuario", "Usuario Anónimo"),
+            autor=request.user,  # Django llena automáticamente con el usuario real que está logueado en esa sesión
             texto=request.POST.get("contenido"),
             calificacion=request.POST.get("calificacion"),
         )
-        try:#dispara las validacion para el conteo de palabras definidad en models con clean()
+        try:  # dispara las validacion para el conteo de palabras definidad en models con clean()
             nueva_resena.full_clean()
             nueva_resena.save()
-        except ValidationError as errores:#si algo falla , vuelve a renderizar el mismo template pasando errores en el contexto en vez de guardar datos invalidos.
+        except ValidationError as errores:  # si algo falla, vuelve a renderizar el mismo template pasando
+        # errores en el contexto en vez de guardar datos invalidos.
             contexto = {
                 "pelicula": pelicula,
                 "resenas": pelicula.resenas.order_by("-id_resena"),
-                "errores": errores.message_dict,
+                "errores": errores.message_dict, #diccionario que asocia cada campo con su mensaje de error
             }
             return render(request, "peliculas/resenas_usuarios.html", contexto)
 

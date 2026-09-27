@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{# Vive en templates/login.html, junto a index.html, porque login no es específico de la app peliculas #}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'peliculas/css/auth.css' %}">
+{% endblock %}
+
+{% block navegacion %}
+    {% include "componentes/navegacion.html" %}
+{% endblock %}
+
+{% block content %}
+    <section class="auth-formulario">
+        <h2>Iniciar sesión</h2>
+
+        {% if form.errors %}
+            <p class="auth-error">Usuario o contraseña incorrectos.</p>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <label for="id_username">Usuario</label>
+            {{ form.username }}
+
+            <label for="id_password">Contraseña</label>
+            {{ form.password }}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <button type="submit" class="btn">Ingresar</button>
+        </form>
+
+        <p class="auth-enlace">
+            ¿No tenés cuenta? <a href="{% url 'registro' %}">Registrate acá</a>
+        </p>
+    </section>
+{% endblock %}

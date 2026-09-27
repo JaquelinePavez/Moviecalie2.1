@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -123,7 +124,14 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 
-# Email
+# Configuración de Archivos Multimedia (Subidos por usuarios)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+LOGIN_URL = 'login'  # usa el name= que le pusimos a la url en config/urls.py
+
+# esto lo saque de aca :
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
 MAILERS = {

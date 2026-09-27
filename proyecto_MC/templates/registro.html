@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{# Vive en templates/registro.html, junto a index.html, porque registro no es específico de la app peliculas #}
+
+{% block title %}Crear cuenta{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'peliculas/css/auth.css' %}">
+{% endblock %}
+
+{% block navegacion %}
+    {% include "componentes/navegacion.html" %}
+{% endblock %}
+
+{% block content %}
+    <section class="auth-formulario">
+        <h2>Crear cuenta</h2>
+
+        <form method="post" action="{% url 'registro' %}">
+            {% csrf_token %}
+
+            <label for="id_username">Usuario</label>
+            {{ formulario.username }}
+            {% if formulario.username.errors %}
+                <p class="auth-error">{{ formulario.username.errors|join:" " }}</p>
+            {% endif %}
+
+            <label for="id_password1">Contraseña</label>
+            {{ formulario.password1 }}
+            {% if formulario.password1.errors %}
+                <p class="auth-error">{{ formulario.password1.errors|join:" " }}</p>
+            {% endif %}
+
+            <label for="id_password2">Repetir contraseña</label>
+            {{ formulario.password2 }}
+            {% if formulario.password2.errors %}
+                <p class="auth-error">{{ formulario.password2.errors|join:" " }}</p>
+            {% endif %}
+
+            <button type="submit" class="btn">Registrarme</button>
+        </form>
+
+        <p class="auth-enlace">
+            ¿Ya tenés cuenta? <a href="{% url 'login' %}">Iniciá sesión</a>
+        </p>
+    </section>
+{% endblock %}

@@ -5,15 +5,19 @@ from django.contrib.auth.models import User
 #me ayuda a construir condiciones
 from django.db.models import Q
 
-# Modelo para guardar los actores
+
+#-------------------------------------------------------#
+#           Modelo para guardar los actores             #
+#-------------------------------------------------------#
 class Actor(models.Model): 
     nombre = models.CharField(max_length=100) 
     apellido = models.CharField(max_length=100)
-    #edad = models.PositiveIntegerField(null=True, blank=True) #Prueba de campo opcional.
     nacionalidad = models.CharField(max_length=100)
     anio_de_nacimiento = models.DateField()
 
     class Meta: 
+        verbose_name = "Actor"
+        verbose_name_plural = "Actores"
         constraints = [
             models.UniqueConstraint(
                 fields=[
@@ -41,13 +45,19 @@ class Actor(models.Model):
         # si no es el unico en ninguna, lo borro
         return super().delete(*args, **kwargs)
 
-# Modelo para guardar los directores
+
+#-------------------------------------------------------#
+#           Modelo para guardar los directores          #
+#-------------------------------------------------------#
+
 class Director(models.Model): 
     nombre = models.CharField(max_length=100) 
     apellido = models.CharField(max_length=100) 
     nacionalidad = models.CharField(max_length=100)
     anio_de_nacimiento = models.DateField()
     class Meta: 
+        verbose_name = "Director"
+        verbose_name_plural = "Directores"
         constraints = [
             models.UniqueConstraint(
                 fields=[
@@ -64,6 +74,7 @@ class Director(models.Model):
     def __str__(self): 
         return f"{self.nombre} {self.apellido}"
 
+
     def delete(self, *args, **kwargs):
         # reviso las peliculas donde aparece el director
         for pelicula in self.peliculas.all():
@@ -76,18 +87,35 @@ class Director(models.Model):
         # si no es el unico en ninguna, lo borro
         return super().delete(*args, **kwargs)
 
+
+#-------------------------------------------------------#
+#           Modelo para guardar los generos             #
+#-------------------------------------------------------#
+
 # ============================================================
 # DEFINICIÓN DE GÉNERO
 # Un género puede estar asociado a varias películas y una
-# película puede tener varios géneros.
+# película puede tener varios géneros. (Muchos a Muchos)
+
 class Genero(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    class Meta:
+        verbose_name = "Género"
+        verbose_name_plural = "Géneros"
+        ordering = ["nombre"]
 
     def __str__(self):
         return self.nombre
+
+
 # ============================================================
 
 
+# ============================================================
+
+#-------------------------------------------------------#
+#           Modelo para guardar las peliculas           #
+#-------------------------------------------------------#
 class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a Django 
                                 #"esta clase de Python representa una tabla de base de datos". 
                                 #Django, por detrás, va a generar el SQL necesario (CREATE TABLE pelicula (...)) 
@@ -115,7 +143,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
            )
     fecha_registro = models.DateTimeField(auto_now_add=True) #colca y guarda automaticamente la fecha y la hora actual
    
-    imagen_portada = models.ImageField(  
+    imagen_portada = models.ImageField(  #imageField guarda la ruta del archivo
         upload_to="peliculas/posters/",  #upload_to le dice a Django en qué carpeta, dentro de MEDIA_ROOT, guardar los archivos subidos.
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])],
         )                           #validators es una lista de funciones/clases que Django ejecuta antes de aceptar el valor 
@@ -128,20 +156,22 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
         decimal_places=1,
         default=0.1
     ) #Si no cargo una calificación
-            
+    #===================================#
+    #       CARDINALIDAD                #
+    #===================================#
+    # RELACIÓN PELÍCULA / ACTORES
     # Una película puede tener varios actores 
     actores = models.ManyToManyField(
         Actor, 
-        related_name="peliculas" ,
-        blank=False) # permite acceder a la relación en sentido inverso
-    
+        related_name="peliculas" , # permite acceder a la relación en sentido inverso
+        blank=False) #obliga al usuario a cargar un actor desde formularios
+    # RELACIÓN PELÍCULA / DIRECTORES
     # Una película puede tener varios directores 
     directores = models.ManyToManyField(
         Director, 
         related_name="peliculas",
         blank=False ) # permite acceder a la relación en sentido inverso
 
-    # ============================================================
     # RELACIÓN PELÍCULA / GÉNERO
     # Una película puede tener varios géneros.
     # related_name="peliculas" permite acceder desde un género
@@ -154,21 +184,34 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     )
     # ============================================================
 
-    #empezamos a configurar el comportamiento y las reglas
+    #======================================#
+    #      REGLAS Y RESTRICCIONES          #
+    #======================================#
     class Meta:
-        #le dice a Django "cuando alguien pida Pelicula.objects.all() 
-        # sin especificar un orden, devolveme los resultados ordenados así por defecto". 
-        # El - adelante de fecha_estreno significa orden descendente (más nuevas primero); 
-        # titulo funciona como criterio de desempate cuando dos películas comparten fecha.
-        ordering = ["-fecha_estreno", "titulo"]
+        verbose_name = "Película"
+        verbose_name_plural = "Películas"
+        ordering = ["-fecha_estreno", "titulo"]  #le dice a Django "cuando alguien pida Pelicula.objects.all() 
+                                                # sin especificar un orden, devolveme los resultados ordenados así por defecto". 
+                                                # El - adelante de fecha_estreno significa orden descendente (más nuevas primero); 
+                                                # titulo funciona como criterio de desempate cuando dos películas comparten fecha.
+
+        # -------------------------------------------------------------
+        # ÍNDICES EXPLÍCITOS PARA BÚSQUEDAS Y FILTROS FRECUENTES
+        # -------------------------------------------------------------
+        indexes = [
+            models.Index(fields=['-fecha_estreno'], name='idx_pelicula_fecha_estreno'), #indice para busquedas por fecha de estrenos
+            models.Index(fields=['-calificacion_promedio'], name='idx_pelicula_calif_desc'),#indice para obtener las mejores valoradas
+            
+        ]
+
 
         constraints = [  #Lista de reglas que Django traduce en restricciones reales de la base de datos
-            models.UniqueConstraint( #combinacion unica de titulo y fecha de estreno
+            models.UniqueConstraint( #uniqueconstraint impide que existan dos filas con la misma combinación de esos campos.
                 fields=["titulo", "fecha_estreno"],
                 name="pelicula_unica_por_titulo_y_fecha", #Se coloca un name unico, para que la base de datos pueda identificar que regla se violo si falla
             ),
             #condiciones que debe cumplir los datos
-            models.CheckConstraint(
+            models.CheckConstraint( #CheckConstraint` valida una condición sobre los valores de cada fila, a nivel de base de datos
                 condition=~Q(titulo=""),
                 name="pelicula_titulo_no_vacio",
             ),
@@ -177,26 +220,21 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
                 name="pelicula_sinopsis_no_vacia",
             ),
             models.CheckConstraint(
-                condition=Q(duracion_minutos__gt=0),
+                condition=Q(duracion_minutos__gt=0), #gt= mayor que 
                 name="pelicula_duracion_positiva",
             ),
             models.CheckConstraint(
-                condition=Q(fecha_estreno__gte="1888-01-01"),
+                condition=Q(fecha_estreno__gte="1888-01-01"), #gte = mayor o igual
                 name="pelicula_fecha_estreno_valida",
             ),
             models.CheckConstraint(
-                # SIGNIFICADO DE CALIFICACIÓN EN PELÍCULA
-                # La calificación individual pertenece a Resena.calificacion.
-                # En Pelicula se almacena el promedio de las reseñas mediante
-                # el campo calificacion_promedio.
-                #
-                # ANTES:
-                # condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10),
-                # name="pelicula_calificacion_en_rango",
-                #
-                # AHORA:
                 condition=Q(calificacion_promedio__gte=0.1) & Q(calificacion_promedio__lte=10),
                 name="pelicula_calificacion_en_rango",
+                # CheckConstraint garantiza que 
+                #ningún error en la lógica de la aplicación, 
+                #carga directa en el Admin o script de migración pueda jamás
+                #almacenar un valor fuera del rango de 0.1 a 10.0 en esa tabla,
+               
             ),
         ]
 
@@ -204,13 +242,19 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
         
            return f"{self.titulo} ({self.fecha_estreno.year})"
 
+#-------------------------------------------------------#
+#           Modelo para guardar reseñas                 #
+#-------------------------------------------------------#
 
 class Resena(models.Model):
     id_resena = models.AutoField(primary_key=True,)
-    pelicula_id = models.ForeignKey(Pelicula,on_delete=models.CASCADE,related_name="resenas",null=False, blank=False,)
+    pelicula = models.ForeignKey(Pelicula,on_delete=models.CASCADE,related_name="resenas",null=False, blank=False,) #on_delete: todas sus reseñas se borran en cadena
     texto = models.TextField(null=False,blank=False,)
     calificacion = models.DecimalField(max_digits=3, decimal_places=1,null=False,blank=False,)
     
+    #===================================#
+    #       CARDINALIDAD                #
+    #===================================#
     # Relaciona la reseña con el usuario que la creó.
     # Un usuario puede tener muchas reseñas.
     autor = models.ForeignKey(
@@ -220,26 +264,35 @@ class Resena(models.Model):
     )
 
     class Meta: #restricciones
+        verbose_name = "Reseña"
+        verbose_name_plural = "Reseñas"
         constraints = [
             models.UniqueConstraint(
-                fields=["pelicula_id", "autor"], name="unica_reseña_por_usuario_y_pelicula",
+                fields=["pelicula", "autor"], 
+                name="unica_reseña_por_usuario_y_pelicula",
                 ),
             models.CheckConstraint(
-                condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10.0), name = "resena_calificacion_en_rango",
+                condition=Q(calificacion__gte=0.1) & Q(calificacion__lte=10.0), 
+                name = "resena_calificacion_en_rango",
             ),
         ]
     #validacion de palabras del texto para contar la cantidad de palabras
     def clean(self):
-        cantidad_palabras = len(self.texto.split()) #divide el texto en una lista de palabras, separando por espacios en blanco. y cuenta cuantos elementos(palabras) hay en total
-        if cantidad_palabras < 2 or cantidad_palabras > 15000:
+        cantidad_palabras = len(self.texto.split()) #divide el texto en una lista de palabras, separando por espacios en blanco. y (len)cuenta cuantos elementos(palabras) hay en total
+        if cantidad_palabras < 2 or cantidad_palabras > 500:
             raise ValidationError(
-                {"texto": "El texto de la reseña debe tener entre 2 y 15.000 palabras."} #le indica con un mensaje el error y "texto" le indica a que campo especifico asociar el error, esto ayuda a que en el formulario le aparesca abajo del campo texto el mensaje de error
+                {"texto": "El texto de la reseña debe tener entre 2 y 500 palabras."} #le indica con un mensaje el error y "texto" le indica a que campo especifico asociar el error, esto ayuda a que en el formulario le aparesca abajo del campo texto el mensaje de error
             )
 
     def __str__(self):
-        return f"Reseña de {self.autor.username} para {self.pelicula_id.titulo}"
+        return f"Reseña de {self.autor.username} para {self.pelicula.titulo}"
 
-# Modelo para guardar los perfiles
+# ============================================================
+
+#-------------------------------------------------------#
+#           Modelo para guardar perfil                  #
+#-------------------------------------------------------#
+
 class Perfil(models.Model):
     usuario = models.OneToOneField(
         User,
@@ -248,9 +301,13 @@ class Perfil(models.Model):
     )
 
     foto_de_perfil = models.ImageField(
-        upload_to="static/peliculas/recursos/imagenes/perfiles/fotos/", #crear carpeta de estos dos ultimos perfiles/fotos para almacenar las fotos de los usuarios
+        upload_to="perfiles/fotos/", #carpeta de estos dos ultimos perfiles/fotos para almacenar las fotos de los usuarios
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])],
         blank=True,
     )
     biografia = models.TextField(blank=True)
     generos_favoritos = models.TextField(null=True, blank=True)
+
+    class Meta: 
+        verbose_name = "Perfil"
+        verbose_name_plural = "Perfiles"

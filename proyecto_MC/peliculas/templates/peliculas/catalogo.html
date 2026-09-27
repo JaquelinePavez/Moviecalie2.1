@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Catálogo{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'peliculas/css/catalogo.css' %}">
+{% endblock %}
+
+{% block navegacion %}
+    {% include "componentes/navegacion.html" %}
+{% endblock %}
+
+{% block content %}
+    <h1 class="titulo-catalogo">Catálogo MovieCali</h1>
+
+    <!-- Formulario de filtros y búsqueda -->
+    <form method="GET" action="{% url 'peliculas:catalogo' %}" class="filtros-catalogo">
+
+        <!-- Buscar por título -->
+        <div class="campo-filtro">
+            <label for="id_q">Buscar por título</label>
+            <input
+                type="text"
+                id="id_q"
+                name="q"
+                placeholder="Título de la película..."
+                value="{{ query_busqueda }}"
+            >
+        </div>
+
+        <!-- Filtrar por género -->
+        <div class="campo-filtro">
+            <label for="id_genero">Género</label>
+            <select id="id_genero" name="genero">
+                <option value="">Todos los géneros</option>
+                {% for g in generos %}
+                    <option value="{{ g.id }}" {% if g.id == genero_seleccionado %}selected{% endif %}>
+                        {{ g.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filtrar por clasificación -->
+        <div class="campo-filtro">
+            <label for="id_clasificacion">Clasificación</label>
+            <select id="id_clasificacion" name="clasificacion">
+                <option value="">Todas</option>
+                {% for valor, etiqueta in clasificaciones %}
+                    <option value="{{ valor }}" {% if valor == clasificacion_seleccionada %}selected{% endif %}>
+                        {{ etiqueta }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filtrar por actor -->
+        <div class="campo-filtro">
+            <label for="id_actor">Actor</label>
+            <select id="id_actor" name="actor">
+                <option value="">Todos los actores</option>
+                {% for a in actores %}
+                    <option value="{{ a.id }}" {% if a.id == actor_seleccionado %}selected{% endif %}>
+                        {{ a.nombre }} {{ a.apellido }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filtrar por director -->
+        <div class="campo-filtro">
+            <label for="id_director">Director</label>
+            <select id="id_director" name="director">
+                <option value="">Todos los directores</option>
+                {% for d in directores %}
+                    <option value="{{ d.id }}" {% if d.id == director_seleccionado %}selected{% endif %}>
+                        {{ d.nombre }} {{ d.apellido }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Rango de años -->
+        <div class="campo-filtro campo-filtro-rango">
+            <label for="id_anio_desde">Año desde</label>
+            <input
+                type="number"
+                id="id_anio_desde"
+                name="anio_desde"
+                placeholder="1990"
+                value="{{ anio_desde }}"
+            >
+            <label for="id_anio_hasta">Año hasta</label>
+            <input
+                type="number"
+                id="id_anio_hasta"
+                name="anio_hasta"
+                placeholder="2026"
+                value="{{ anio_hasta }}"
+            >
+        </div>
+
+        <!-- Calificación mínima -->
+        <div class="campo-filtro">
+            <label for="id_min_calificacion">Calificación mín.</label>
+            <select id="id_min_calificacion" name="min_calificacion">
+                <option value="">Cualquiera</option>
+                <option value="9.0" {% if min_calificacion == '9.0' %}selected{% endif %}>⭐ 9.0+</option>
+                <option value="8.0" {% if min_calificacion == '8.0' %}selected{% endif %}>⭐ 8.0+</option>
+                <option value="7.0" {% if min_calificacion == '7.0' %}selected{% endif %}>⭐ 7.0+</option>
+                <option value="5.0" {% if min_calificacion == '5.0' %}selected{% endif %}>⭐ 5.0+</option>
+            </select>
+        </div>
+
+        <!-- Ordenar resultados -->
+        <div class="campo-filtro">
+            <label for="id_orden">Ordenar por</label>
+            <select id="id_orden" name="orden">
+                <option value="fecha_desc" {% if orden_seleccionado == 'fecha_desc' %}selected{% endif %}>Más recientes primero</option>
+                <option value="fecha_asc" {% if orden_seleccionado == 'fecha_asc' %}selected{% endif %}>Más antiguas primero</option>
+                <option value="calificacion_desc" {% if orden_seleccionado == 'calificacion_desc' %}selected{% endif %}>Mejor calificadas</option>
+                <option value="calificacion_asc" {% if orden_seleccionado == 'calificacion_asc' %}selected{% endif %}>Menor calificación</option>
+                <option value="titulo_asc" {% if orden_seleccionado == 'titulo_asc' %}selected{% endif %}>Título (A-Z)</option>
+            </select>
+        </div>
+
+        <div class="acciones-filtro">
+            <a href="{% url 'peliculas:catalogo' %}" class="btn">Limpiar filtros</a>
+            <button type="submit" class="btn">Aplicar filtros</button>
+        </div>
+    </form>
+
+    <!-- Tarjetas de películas -->
+    <div class="grid-peliculas">
+        {% for pelicula in peliculas %}
+            <div class="tarjeta-pelicula">
+                {% if pelicula.imagen_portada %}
+                    <img src="{{ pelicula.imagen_portada.url }}" alt="{{ pelicula.titulo }}">
+                {% endif %}
+                <div class="tarjeta-pelicula-cuerpo">
+                    <h3>{{ pelicula.titulo }}</h3>
+                    <p class="tarjeta-pelicula-meta">Estreno: {{ pelicula.fecha_estreno|date:"Y" }}</p>
+                    <p class="tarjeta-pelicula-badges">
+                        <span class="badge">⭐ {{ pelicula.calificacion_promedio }} / 10</span>
+                        <span class="badge">{{ pelicula.get_clasificacion_display }}</span>
+                    </p>
+                    <p class="tarjeta-pelicula-sinopsis">{{ pelicula.sinopsis|truncatewords:15 }}</p>
+                    <div class="tarjeta-pelicula-generos">
+                        {% for g in pelicula.generos.all %}
+                            <span class="badge">{{ g.nombre }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="sin-resultados">No se encontraron películas que coincidan con la búsqueda.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

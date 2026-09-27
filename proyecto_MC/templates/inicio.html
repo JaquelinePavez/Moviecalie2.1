@@ -9,20 +9,26 @@
     <link rel="stylesheet" href="{% static 'peliculas/css/inicio.css' %}">
 {% endblock %}
 
-<!-- esta pagina no puede volver al inicio por que es inicio-->
+
 
 {% block content %}
-
-    <a href="{% url 'peliculas:agregar' %}" class="boton-superior">
-        Agregar película
-    </a>
-
+{% comment %}
+        Pendiente: reconectar cuando el equipo resuelva como se va a cargar películas
+        (agregar_pelicula vía formulario propio, o directamente por el Django Admin).
+        <a href="{% url 'peliculas:agregar' %}" class="boton-superior">
+            Agregar película
+        </a>
+{% endcomment %}
+    <a href="{% url 'peliculas:catalogo' %}" class="boton-superior"> VER CATALOGO</a>
     <div class="catalogo-peliculas">
 
         {% for pelicula in peliculas %}
 
             <div class="card">
-                <img src="{{ pelicula.imagen }}" width="200" alt="Póster de {{ pelicula.titulo }}">
+                {% if pelicula.imagen_portada %}
+                    <img src="{{ pelicula.imagen_portada.url }}" width="200" alt="Póster de {{ pelicula.titulo }}">
+                {% endif %}
+                
                 <p class="subtitulo-tarjeta"> {{ pelicula.titulo }} </p>
                 
                 <a href="{% url 'peliculas:resenas_pelicula' pelicula.id %}" class="btn"> Ver película </a>
