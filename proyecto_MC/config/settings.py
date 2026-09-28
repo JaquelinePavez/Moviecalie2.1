@@ -44,13 +44,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "peliculas.apps.PeliculasConfig",
+    "usuarios.apps.UsuariosConfig",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware", #verifica que el token que recibe por formulario sea igual al que guardo en la cookie del usuario
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -66,7 +67,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
+                "django.contrib.auth.context_processors.auth", #le agrega varibles al contexto de forma automatica, como user o perms(permisos) a todos los templates
                 "django.contrib.messages.context_processors.messages",
             ],
         },
@@ -87,10 +88,10 @@ DATABASES = {
 }
 
 
-# Password validation
+# Validacion de contraseñas
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas, muy comunes, iguales al username,
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
@@ -129,7 +130,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-LOGIN_URL = 'login'  # usa el name= que le pusimos a la url en config/urls.py
+
+LOGIN_URL = 'usuarios:login' #si alguien intenta entrar a una pagina protegida sin estar logueado, mandalo para acá
+AUTH_USER_MODEL = "usuarios.Usuario" 
+LOGIN_REDIRECT_URL = 'inicio' #si alguien se loguea desde la pantalla de login directamente (sin venir de una página protegida), mandalo para acá al terminar
 
 # esto lo saque de aca :
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

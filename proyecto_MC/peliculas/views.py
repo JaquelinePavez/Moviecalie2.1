@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
-from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
 from django.db.models import Q, Avg  # agregamos Avg
@@ -81,27 +80,27 @@ def catalogo_peliculas(request):
     return render(request, 'peliculas/catalogo.html', context)
 
 
-@login_required  # decorador. chequea que el request.user este autenticado antes de mostrar el detalle. verifica que haya un usuario real.
 def detalle_resenas_pelicula(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] #calcula un valor resumen del promedio de todas las resenas de una pelicula
 
-    if request.method == "GET":
-        resenas_de_esta_pelicula = pelicula.resenas.order_by("-id_resena")  # devuelve solo las reseñas de esa pelicula, le agrega el criterio de orden, descendente (la mas reciente primero)
-        promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] #calcula un valor resumen del promedio de todas las resenas de una pelicula
-
+    if request.method == "GET": #permite que un usuario no autenticado pueda visualizar las resenas
+       
         contexto = {
             "pelicula": pelicula,
-            "resenas": resenas_de_esta_pelicula,
+            "resenas": pelicula.resenas.order_by("-id_resena"),
             "promedio_resenas": promedio_resenas,
         }
 
         return render(request, "peliculas/resenas_usuarios.html", contexto)
 
-    if request.method == "POST":
+    if request.method == "POST": #para publicar requiere sesion
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path())
         nueva_resena = Resena( #crea el objeto en memoria
             pelicula=pelicula,
             autor=request.user,  # Django llena automáticamente con el usuario real que está logueado en esa sesión
-            texto=request.POST.get("contenido"),
+            texto=request.POST.get("contenido",""), #"" evita fallo si llega un none , le pone x defaul vacio
             calificacion=request.POST.get("calificacion"),
         )
         try:  # dispara las validacion para el conteo de palabras definidad en models con clean()
@@ -113,6 +112,9 @@ def detalle_resenas_pelicula(request, id):
                 "pelicula": pelicula,
                 "resenas": pelicula.resenas.order_by("-id_resena"),
                 "errores": errores.message_dict, #diccionario que asocia cada campo con su mensaje de error
+                "promedio_resenas": promedio_resenas,
+                "calificacion_previa": request.POST.get("calificacion", ""),
+                "texto_previo": request.POST.get("contenido","") #esto es para evitar que vuelva a escribir todo de nuevo
             }
             return render(request, "peliculas/resenas_usuarios.html", contexto)
 

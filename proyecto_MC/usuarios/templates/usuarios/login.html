@@ -8,11 +8,10 @@
     <link rel="stylesheet" href="{% static 'peliculas/css/auth.css' %}">
 {% endblock %}
 
-{% block navegacion %}
-    {% include "componentes/navegacion.html" %}
-{% endblock %}
+
 
 {% block content %}
+    <input type="hidden" name="next" value="{{ next }}">
     <section class="auth-formulario">
         <h2>Iniciar sesión</h2>
 
@@ -20,7 +19,7 @@
             <p class="auth-error">Usuario o contraseña incorrectos.</p>
         {% endif %}
 
-        <form method="post" action="{% url 'login' %}">
+        <form method="post" action="{% url 'usuarios:login' %}">
             {% csrf_token %}
 
             <label for="id_username">Usuario</label>
@@ -37,7 +36,7 @@
         </form>
 
         <p class="auth-enlace">
-            ¿No tenés cuenta? <a href="{% url 'registro' %}">Registrate acá</a>
+            ¿No tenés cuenta? <a href="{% url 'usuarios:registro' %}">Registrate acá</a>
         </p>
     </section>
 {% endblock %}

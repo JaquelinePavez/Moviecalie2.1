@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator #controla extensiones de archivos
 from django.db import models #me da las herramientas para crear los modelos
-from django.contrib.auth.models import User
+from django.conf import settings #para reseñas.autor
+#from django.contrib.auth.models import User
 #me ayuda a construir condiciones
 from django.db.models import Q
 
@@ -257,11 +258,11 @@ class Resena(models.Model):
     #===================================#
     # Relaciona la reseña con el usuario que la creó.
     # Un usuario puede tener muchas reseñas.
+  
     autor = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL, #referencia hacia la app usuarios
         on_delete=models.CASCADE,
-        related_name="resenas"
-    )
+        related_name="resenas") #
 
     class Meta: #restricciones
         verbose_name = "Reseña"
@@ -287,27 +288,3 @@ class Resena(models.Model):
     def __str__(self):
         return f"Reseña de {self.autor.username} para {self.pelicula.titulo}"
 
-# ============================================================
-
-#-------------------------------------------------------#
-#           Modelo para guardar perfil                  #
-#-------------------------------------------------------#
-
-class Perfil(models.Model):
-    usuario = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="perfil"
-    )
-
-    foto_de_perfil = models.ImageField(
-        upload_to="perfiles/fotos/", #carpeta de estos dos ultimos perfiles/fotos para almacenar las fotos de los usuarios
-        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png", "webp"])],
-        blank=True,
-    )
-    biografia = models.TextField(blank=True)
-    generos_favoritos = models.TextField(null=True, blank=True)
-
-    class Meta: 
-        verbose_name = "Perfil"
-        verbose_name_plural = "Perfiles"

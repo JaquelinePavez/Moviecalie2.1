@@ -26,15 +26,18 @@
         </div>
 
         <details style="margin:20px 0;"><summary class="boton-superior" style="cursor:pointer;">Agregar reseña</summary>
-
+        {% if user.is_authenticated %}
             <form method="POST" class="categoria-bloque" style="margin-top:15px;">
-                {% csrf_token %}
+                {% csrf_token %} <!--genera un token unico-->
 
                 <p>Comentando como <b>{{ request.user.username }}</b></p>
                 <label>Calificación (1-10): <input type="number" name="calificacion" min="1" max="10" required></label>
                 <label>Comentario: <textarea name="contenido" rows="4" required></textarea></label>
                 <button type="submit" class="accion_publicar">Publicar Reseña</button>
             </form>
+        {% else %}
+            <a href="{% url 'usuarios:login' %}?next={{ request.path }}">Inicia Sesion</a>
+        {% endif %}
         </details>
 
         <section class="contenedor-aside">

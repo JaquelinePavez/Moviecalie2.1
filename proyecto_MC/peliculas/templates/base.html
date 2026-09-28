@@ -12,17 +12,31 @@
     <link rel="stylesheet" href="{% static 'peliculas/css/headerBoostrap.css' %}">
     
     {% block extra_css %}{% endblock %}
+
 </head>
 <body>
     <header class="perfil">
-
-        <!-- navegación se agrega solo en las páginas que la usan -->
         {% block navegacion %}
+            {% include "componentes/navegacion.html" %}
         {% endblock %}
-        <h1>
-            MovieCali
-        </h1>
-        
+        <h1>MovieCali</h1>
+        <nav>
+            {% if user.is_authenticated %} <!--verifica si esta logueado-->
+                <span>Hola, {{ user.username }}</span>
+                <form method="post" action="{% url 'usuarios:logout' %}" class="form-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn">Cerrar sesión</button>
+                </form>
+            {% else %}
+                {% if request.resolver_match.view_name != 'usuarios:login' %} <!--con request.resolver_match.view_name sabe en que pagina esta parado y devuelve el nombre de la url con el namespace-->
+                <!--con el namespace puede verificar si es igual a usuarios:login no lo muestra-->   
+                    <a href="{% url 'usuarios:login' %}" class="btn">Iniciar sesión</a>
+                {% endif %}
+                {% if request.resolver_match.view_name != 'usuarios:registro' %}
+                    <a href="{% url 'usuarios:registro' %}" class="btn">Registrarse</a>
+                {% endif %}
+            {% endif %}
+        </nav>
     </header>
 
 

@@ -1,3 +1,11 @@
+
+
 <nav>
-    <a href="{% url 'inicio' %}" class="btn">Volver al inicio</a>
+    {% if request.resolver_match.view_name != 'inicio' %} <!--Verifica si el namespace que recibe es distinto.
+     esto es para que cuando este en la misma pagina no se redireccione a si mismo-->
+        <a href="{% url 'inicio' %}" class="btn">INICIO</a>
+    {% endif %}
+    {% if request.resolver_match.view_name != 'peliculas:catalogo' %}
+        <a href="{% url 'peliculas:catalogo' %}" class="btn">Catálogo</a>
+    {% endif %}
 </nav>

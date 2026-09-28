@@ -16,8 +16,13 @@
     <section class="auth-formulario">
         <h2>Crear cuenta</h2>
 
-        <form method="post" action="{% url 'registro' %}">
+        <form method="post" action="{% url 'usuarios:registro' %}">
             {% csrf_token %}
+            <label for ="id_email">Email</label>
+            {{ formulario.email }}
+            {% if formulario.email.errors %}
+                <p class="auth-error">{{ formulario.email.errors|join:" " }}</p>
+            {% endif %}
 
             <label for="id_username">Usuario</label>
             {{ formulario.username }}
@@ -41,7 +46,7 @@
         </form>
 
         <p class="auth-enlace">
-            ¿Ya tenés cuenta? <a href="{% url 'login' %}">Iniciá sesión</a>
+            ¿Ya tenés cuenta? <a href="{% url 'usuarios:login' %}">Iniciá sesión</a>
         </p>
     </section>
 {% endblock %}

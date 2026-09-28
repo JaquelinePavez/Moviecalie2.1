@@ -11,6 +11,8 @@
 
 
 
+
+
 {% block content %}
 {% comment %}
         Pendiente: reconectar cuando el equipo resuelva como se va a cargar películas
@@ -19,7 +21,7 @@
             Agregar película
         </a>
 {% endcomment %}
-    <a href="{% url 'peliculas:catalogo' %}" class="boton-superior"> VER CATALOGO</a>
+    <a href="{% url 'peliculas:catalogo' %}" class="boton-superior"> VER CATALOGO</a> 
     <div class="catalogo-peliculas">
 
         {% for pelicula in peliculas %}
