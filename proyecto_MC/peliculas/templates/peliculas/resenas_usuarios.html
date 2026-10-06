@@ -29,10 +29,7 @@
         {% if user.is_authenticated %}
             <form method="POST" class="categoria-bloque" style="margin-top:15px;">
                 {% csrf_token %} <!--genera un token unico-->
-
-                <p>Comentando como <b>{{ request.user.username }}</b></p>
-                <label>Calificación (1-10): <input type="number" name="calificacion" min="1" max="10" required></label>
-                <label>Comentario: <textarea name="contenido" rows="4" required></textarea></label>
+                {{ form.as_p }} <!--llama a lo que hicimos en forms.py-->
                 <button type="submit" class="accion_publicar">Publicar Reseña</button>
             </form>
         {% else %}
@@ -49,17 +46,25 @@
                     <p class="resena-autor">{{ resena.autor.username }} dice:</p>
                     <p class="resena-texto">"{{ resena.texto }}"</p>
 
-                    {% comment %}
-                    Pendiente: reportes y contador de comentarios (pensado originalmente para
-                    un panel de moderación tipo intranet). A revisar en equipo si se resuelve
-                    a mano acá o directamente desde el Django Admin.
+
                     <div class="botonera">
+                        <!-- Lo ve todo el mundo -->
                         <button class="btn">Reportes {{ resena.reportes }}</button>
-                        <button class="btn">Eliminar</button>
+                        
+                        <!-- SOLO lo ve el autor de la reseña -->
+                        {% if resena.autor_id == user.id %}
+                            <a href="{% url 'peliculas:editar_resenas' resena.pk %}" class="btn">Editar</a>
+                            <button class="btn">Eliminar</button> 
+                        {% endif %} 
+
+                        <!-- Lo ve todo el mundo otra vez -->
                         <a class="btn">{{ resena.comentarios_count }} Comentarios</a>
                         <button class="btn">Ocultar</button>
                     </div>
-                    {% endcomment %}
+
+
+
+                    
                 </div>
                 {% empty %}
                 <p>No hay reseñas publicadas.</p>

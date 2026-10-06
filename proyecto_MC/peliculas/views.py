@@ -3,6 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
 from django.db.models import Q, Avg  # agregamos Avg
+from .forms import ResenaForm
+from django.contrib.auth.decorators import login_required
+
 
 def catalogo_peliculas(request):
     # Optimiza consultas separadas cargando las relaciones en una sola query
@@ -82,40 +85,77 @@ def catalogo_peliculas(request):
 
 def detalle_resenas_pelicula(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] #calcula un valor resumen del promedio de todas las resenas de una pelicula
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula
 
-    if request.method == "GET": #permite que un usuario no autenticado pueda visualizar las resenas
-       
+    if request.method == "GET":  # permite que un usuario no autenticado pueda visualizar las resenas
+        form = ResenaForm()  # dibuja el formulario vacio
         contexto = {
             "pelicula": pelicula,
             "resenas": pelicula.resenas.order_by("-id_resena"),
             "promedio_resenas": promedio_resenas,
+            "form": form,
         }
 
         return render(request, "peliculas/resenas_usuarios.html", contexto)
 
-    if request.method == "POST": #para publicar requiere sesion
+    if request.method == "POST":  # para publicar requiere sesion
         if not request.user.is_authenticated:
             return redirect_to_login(request.get_full_path())
-        nueva_resena = Resena( #crea el objeto en memoria
-            pelicula=pelicula,
-            autor=request.user,  # Django llena automáticamente con el usuario real que está logueado en esa sesión
-            texto=request.POST.get("contenido",""), #"" evita fallo si llega un none , le pone x defaul vacio
-            calificacion=request.POST.get("calificacion"),
-        )
-        try:  # dispara las validacion para el conteo de palabras definidad en models con clean()
-            nueva_resena.full_clean()
-            nueva_resena.save()
-        except ValidationError as errores:  # si algo falla, vuelve a renderizar el mismo template pasando
-        # errores en el contexto en vez de guardar datos invalidos.
-            contexto = {
-                "pelicula": pelicula,
-                "resenas": pelicula.resenas.order_by("-id_resena"),
-                "errores": errores.message_dict, #diccionario que asocia cada campo con su mensaje de error
-                "promedio_resenas": promedio_resenas,
-                "calificacion_previa": request.POST.get("calificacion", ""),
-                "texto_previo": request.POST.get("contenido","") #esto es para evitar que vuelva a escribir todo de nuevo
-            }
-            return render(request, "peliculas/resenas_usuarios.html", contexto)
 
-        return redirect("peliculas:resenas_pelicula", id=id)
+        form = ResenaForm(request.POST)  # envia la peticion para validar los datos
+
+        if form.is_valid():  # si es valido devuelve True, sino devuelve False
+            nueva_resena = form.save(commit=False)  # obtiene los datos validados pero no los guarda aun
+            calificacion = form.cleaned_data["calificacion"]  # limpia los datos y los guarda con su tipo correspondiente
+            texto = form.cleaned_data["texto"]
+
+            nueva_resena = Resena(  # crea el objeto con los datos ya validados
+                pelicula=pelicula,
+                autor=request.user,  # Django llena automáticamente con el usuario real que está logueado en esa sesión
+                calificacion=calificacion,
+                texto=texto,
+            )
+
+            try:  # dispara las validaciones para el conteo de palabras definido en models con clean()
+                nueva_resena.full_clean()
+            except ValidationError as errores:  # si algo falla
+                form.add_error(None, errores.messages)  # agrega los errores al formulario
+            else:
+                nueva_resena.save()  # lo guarda en la BBDD
+                messages.success(request, "Tu reseña se publicó correctamente.")
+                return redirect("peliculas:resenas_pelicula", id=pelicula.id)
+
+        contexto = {
+            "pelicula": pelicula,
+            "resenas": pelicula.resenas.order_by("-id_resena"),
+            "promedio_resenas": promedio_resenas,
+            "form": form,
+        }
+
+        return render(request, "peliculas/resenas_usuarios.html", contexto)
+
+
+@login_required # El usuario debe estar autenticado sí o sí 
+def editar_resenas(request, pk):
+    resena = get_object_or_404(Resena, pk=pk, autor=request.user) # Identifica el usuario sino devuelve 404
+    pelicula = resena.pelicula
+    
+    if request.method == "POST":
+        form = ResenaForm(request.POST, instance=resena) # Recibe los datos enviados
+        if form.is_valid():
+            form.save()
+            
+            return redirect("peliculas:resenas_pelicula", id=pelicula.pk) 
+    else: 
+        # Método GET: Muestra el formulario con los datos actuales
+        form = ResenaForm(instance=resena) 
+
+    # Colocar el render aquí al final soluciona dos cosas:
+    # 1. Muestra la página en el GET inicial.
+    # 2. Si el formulario POST tiene errores, vuelve a mostrar la página enseñando los errores de validación.
+    contexto = {
+        'form': form,
+        'resena': resena,
+        'pelicula': pelicula,
+    }
+    return render(request, "peliculas/resenas_usuarios.html", contexto)

@@ -3,14 +3,17 @@ from django.contrib.auth.forms import UserCreationForm
 
 from .models import Usuario
 
+#usercreationform es un modelForm ya armado para crear usuarios.
 
 class RegistroForm(UserCreationForm):#heredda de usercreationform el registro y seguridad de hasheo y le agrega campos propios como email
     # UserCreationForm no tiene email, por eso se declara acá y se marca obligatorio
     email = forms.EmailField(required=True)
 
     class Meta(UserCreationForm.Meta):
-        model = Usuario
-        fields = ("username", "email")  # password1 y password2 los agrega UserCreationForm por su cuenta
+        model = Usuario #indica el modelo
+        fields = ("username", "email")  #fields: es la lista explicita 
+        #de campos del modelo que van a aparecen en el formulario
+        # password1 y password2 los agrega UserCreationForm por su cuenta
 
     def clean_email(self):
         # se pasa a minúsculas para que "Ana@mail.com" y "ana@mail.com" sean el mismo email

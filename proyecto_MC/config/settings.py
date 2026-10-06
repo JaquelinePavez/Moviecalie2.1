@@ -91,7 +91,9 @@ DATABASES = {
 # Validacion de contraseñas
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas, muy comunes, iguales al username,
+AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas establece un largo minimo
+#,que no sean damasiado comunes, iguales al username, que no sea solo numericas.
+   
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
