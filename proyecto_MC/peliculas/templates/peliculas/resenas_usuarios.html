@@ -5,80 +5,244 @@
     Reseñas de usuarios
 {% endblock %}
 
-<!-- esta pagina si puede volver al inicio-->
+<!-- esta pagina si puede volver al inicio -->
 {% block navegacion %}
     {% include "componentes/navegacion.html" %}
 {% endblock %}
 
-{% block content %} <!-- inicia contenido que se va mostrar-->
+{% block content %}
 
     {% if pelicula %}
 
-        <div class="cabecera-pelicula" style="display:flex; gap:20px; align-items:center;">
-            {% if pelicula.imagen_portada %}
-                <img src="{{ pelicula.imagen_portada.url }}" width="200" style="border-radius:10px;" alt="{{ pelicula.titulo }}">
-            {% endif %}
-            <div class="info-pelicula">
-                <h1 class="titulo-principal">{{ pelicula.titulo }}</h1>
-                <h2>Reseñas de usuarios:</h2>
-                <p>Promedio: {{ promedio_resenas|floatformat:1 }} / 10</p>
-            </div>
-        </div>
+        <!-- ========================================= -->
+        <!-- INFORMACIÓN PRINCIPAL DE LA PELÍCULA     -->
+        <!-- ========================================= -->
 
-        <details style="margin:20px 0;"><summary class="boton-superior" style="cursor:pointer;">Agregar reseña</summary>
-        {% if user.is_authenticated %}
-            <form method="POST" class="categoria-bloque" style="margin-top:15px;">
-                {% csrf_token %} <!--genera un token unico-->
-                {{ form.as_p }} <!--llama a lo que hicimos en forms.py-->
-                <button type="submit" class="accion_publicar">Publicar Reseña</button>
-            </form>
-        {% else %}
-            <a href="{% url 'usuarios:login' %}?next={{ request.path }}">Inicia Sesion</a>
-        {% endif %}
+        <div class="cabecera-pelicula" style="display:flex; gap:20px; align-items:flex-start;">
+
+            {% if pelicula.imagen_portada %}
+
+                <img
+                    src="{{ pelicula.imagen_portada.url }}"
+                    width="200"
+                    style="border-radius:10px;"
+                    alt="{{ pelicula.titulo }}"
+                >
+
+            {% endif %}
+
+            <div class="info-pelicula">
+
+                <!-- Título -->
+                <h1 class="titulo-principal">
+                    {{ pelicula.titulo }}
+                </h1>
+
+                <!-- Calificación -->
+                <h2>Calificación:</h2>
+                <p>⭐ {{ pelicula.calificacion_promedio }} / 10</p>
+
+                <!-- Sinopsis -->
+                <h2>Sinopsis:</h2>
+                <p>{{ pelicula.sinopsis }}</p>
+
+                <!-- Duración -->
+                <p><strong>Duración:</strong>{{ pelicula.duracion_minutos }} minutos</p>
+
+                <!-- Fecha de estreno -->
+                <p><strong>Fecha de estreno:</strong>{{ pelicula.fecha_estreno|date:"d/m/Y" }}</p>
+
+                <!-- Clasificación -->
+                <p><strong>Clasificación:</strong>{{ pelicula.get_clasificacion_display }}</p>
+
+                <!-- Actores -->
+                <p><strong>Actores:</strong>
+                    {% for actor in pelicula.actores.all %}
+                        {{ actor.nombre }} {{ actor.apellido }}
+                        {% if not forloop.last %}
+                            ,
+                        {% endif %}
+                    {% empty %}
+                        No hay actores cargados.
+                    {% endfor %}
+                </p>
+
+                <!-- Directores -->
+                <p><strong>Directores:</strong>
+                    {% for director in pelicula.directores.all %}
+                        {{ director.nombre }} {{ director.apellido }}
+                        {% if not forloop.last %}
+                            ,
+                        {% endif %}
+                    {% empty %}
+                        No hay directores cargados.
+                    {% endfor %}
+                </p>
+
+                <!-- Géneros -->
+                <p><strong>Géneros:</strong>
+                    {% for genero in pelicula.generos.all %}
+                        {{ genero.nombre }}
+                        {% if not forloop.last %}
+                            ,
+                        {% endif %}
+                    {% empty %}
+                        No hay géneros cargados.
+                    {% endfor %}
+                </p>
+
+                <!-- Trailer -->
+                {% if pelicula.trailer_embed_url %}
+                    <p><strong>Trailer:</strong></p>
+                    <div class="trailer-pelicula">
+                        <iframe
+                            src="{{ pelicula.trailer_embed_url }}"
+                            title="Trailer de {{ pelicula.titulo }}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                {% else %}
+                    <p><strong>Trailer:</strong> No hay trailer disponible.</p>
+                {% endif %}
+
+        <!-- ========================================= -->
+        <!-- AGREGAR RESEÑA                            -->
+        <!-- ========================================= -->
+
+        <details style="margin:20px 0;">
+
+            <summary
+                class="boton-superior"
+                style="cursor:pointer;"
+            >
+                Agregar reseña
+            </summary>
+
+            {% if user.is_authenticated %}
+
+                <form
+                    method="POST"
+                    class="categoria-bloque"
+                    style="margin-top:15px;"
+                >
+
+                    {% csrf_token %}
+
+                    {{ form.as_p }}
+
+                    <button
+                        type="submit"
+                        class="accion_publicar"
+                    >
+                        Publicar Reseña
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <a href="{% url 'usuarios:login' %}?next={{ request.path }}">
+                    Inicia Sesion
+                </a>
+
+            {% endif %}
+
         </details>
+
+
+        <!-- ========================================= -->
+        <!-- RESEÑAS DE USUARIOS                       -->
+        <!-- ========================================= -->
+
+        <h2>Reseñas de usuarios:</h2>
 
         <section class="contenedor-aside">
 
             {% for resena in resenas %}
 
                 <div class="item-aside">
-                    <p><b>Calificación:</b> {{ resena.calificacion }}</p>
-                    <p class="resena-autor">{{ resena.autor.username }} dice:</p>
-                    <p class="resena-texto">"{{ resena.texto }}"</p>
+
+                    <p>
+                        <b>Calificación:</b>
+                        {{ resena.calificacion }}
+                    </p>
+
+                    <p class="resena-autor">
+                        {{ resena.autor.username }} dice:
+                    </p>
+
+                    <p class="resena-texto">
+                        "{{ resena.texto }}"
+                    </p>
 
 
                     <div class="botonera">
+
                         <!-- Lo ve todo el mundo -->
-                        <button class="btn">Reportes {{ resena.reportes }}</button>
-                        
+                        <button class="btn">
+                            Reportes {{ resena.reportes }}
+                        </button>
+
+
                         <!-- SOLO lo ve el autor de la reseña -->
                         {% if resena.autor_id == user.id %}
-                            <a href="{% url 'peliculas:editar_resenas' resena.pk %}" class="btn">Editar</a>
 
-                            <form method="POST"
+                            <a
+                                href="{% url 'peliculas:editar_resenas' resena.pk %}"
+                                class="btn"
+                            >
+                                Editar
+                            </a>
+
+
+                            <form
+                                method="POST"
                                 action="{% url 'peliculas:eliminar_resena' resena.pk %}"
-                                onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');">
+                                onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');"
+                            >
 
                                 {% csrf_token %}
 
-                                <button type="submit" class="btn">Eliminar</button>
-                            </form>
-                        {% endif %} 
+                                <button
+                                    type="submit"
+                                    class="btn"
+                                >
+                                    Eliminar
+                                </button>
 
-                        <!-- Lo ve todo el mundo otra vez -->
-                        <a class="btn">{{ resena.comentarios_count }} Comentarios</a>
-                        <button class="btn">Ocultar</button>
+                            </form>
+
+                        {% endif %}
+
+
+                        <!-- Lo ve todo el mundo -->
+                        <a class="btn">
+                            {{ resena.comentarios_count }} Comentarios
+                        </a>
+
+                        <button class="btn">
+                            Ocultar
+                        </button>
+
                     </div>
-                    
+
                 </div>
-                {% empty %}
+
+            {% empty %}
+
                 <p>No hay reseñas publicadas.</p>
+
             {% endfor %}
 
         </section>
 
-        {% else %}
+
+    {% else %}
+
         <p>Película no encontrada.</p>
 
     {% endif %}
-{%endblock%} 
+
+{% endblock %}

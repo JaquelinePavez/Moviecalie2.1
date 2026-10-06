@@ -137,6 +137,29 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
     duracion_minutos = models.PositiveIntegerField(null=False, blank=False)
     fecha_estreno = models.DateField(null=False, blank=False) #guarda solo fechas (sin hora)
     url_trailer = models.URLField(blank=True)
+
+    #Esta parte es un método que devuelve la URL del trailer en formato embebido, para poder mostrarlo en un iframe.
+    @property
+    def trailer_embed_url(self):
+        if not self.url_trailer:
+            return None
+        url = self.url_trailer.strip()
+
+        # Si ya es embed, devolverla tal cual limpia
+        if "youtube.com/embed/" in url:
+            return url.split("?")[0]
+
+        video_id = None
+        if "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[-1].split("?")[0].split("&")[0].split("/")[0]
+        elif "watch?v=" in url:
+            video_id = url.split("watch?v=")[-1].split("&")[0].split("?")[0]
+
+        if video_id:
+            return f"https://www.youtube.com/embed/{video_id}"
+        return None
+        #=============================================================
+
     clasificacion = models.CharField(
         max_length=5,
         choices=Clasificacion.choices,
