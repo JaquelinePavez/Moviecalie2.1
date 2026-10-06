@@ -54,16 +54,21 @@
                         <!-- SOLO lo ve el autor de la reseña -->
                         {% if resena.autor_id == user.id %}
                             <a href="{% url 'peliculas:editar_resenas' resena.pk %}" class="btn">Editar</a>
-                            <button class="btn">Eliminar</button> 
+
+                            <form method="POST"
+                                action="{% url 'peliculas:eliminar_resena' resena.pk %}"
+                                onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="btn">Eliminar</button>
+                            </form>
                         {% endif %} 
 
                         <!-- Lo ve todo el mundo otra vez -->
                         <a class="btn">{{ resena.comentarios_count }} Comentarios</a>
                         <button class="btn">Ocultar</button>
                     </div>
-
-
-
                     
                 </div>
                 {% empty %}

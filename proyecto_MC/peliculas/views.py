@@ -5,6 +5,7 @@ from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el 
 from django.db.models import Q, Avg  # agregamos Avg
 from .forms import ResenaForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 def catalogo_peliculas(request):
@@ -144,6 +145,7 @@ def editar_resenas(request, pk):
         form = ResenaForm(request.POST, instance=resena) # Recibe los datos enviados
         if form.is_valid():
             form.save()
+            messages.success(request, "Tu reseña se edito correctamente.")
             
             return redirect("peliculas:resenas_pelicula", id=pelicula.pk) 
     else: 
@@ -159,3 +161,23 @@ def editar_resenas(request, pk):
         'pelicula': pelicula,
     }
     return render(request, "peliculas/resenas_usuarios.html", contexto)
+
+
+@login_required
+def eliminar_resena(request, pk):
+
+    # Solo se elimina la reseña cuando se recibe una petición POST.
+    if request.method == "POST":
+        # Busca la reseña y verifica que pertenezca al usuario que inició sesión.
+            # Si no existe o no pertenece al usuario, devuelve un error 404.
+        resena = get_object_or_404(Resena, pk=pk, autor=request.user)
+
+        # Guardamos el ID de la película antes de eliminar la reseña.
+        pelicula_id = resena.pelicula_id
+
+        # Elimina la reseña de la base de datos.
+        resena.delete()
+        messages.success(request, "La reseña se eliminó.")
+
+        # Redirige a las reseñas de la película.
+        return redirect("peliculas:resenas_pelicula", id=pelicula_id)
