@@ -24,11 +24,10 @@
 
                 <img
                     src="{{ pelicula.imagen_portada.url }}"
-                    width="200"
+                    width="400"
                     style="border-radius:10px;"
                     alt="{{ pelicula.titulo }}"
                 >
-
             {% endif %}
 
             <div class="info-pelicula">
@@ -93,18 +92,21 @@
 
                 <!-- Trailer -->
                 {% if pelicula.trailer_embed_url %}
-                    <p><strong>Trailer:</strong></p>
-                    <div class="trailer-pelicula">
+                    <div class="trailer">
+                        <h2>Tráiler</h2>
+
                         <iframe
                             src="{{ pelicula.trailer_embed_url }}"
-                            title="Trailer de {{ pelicula.titulo }}"
+                            title="Tráiler de {{ pelicula.titulo }}"
+                            width="800"
+                            height="450"
+                            
                             frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
                             allowfullscreen>
                         </iframe>
                     </div>
-                {% else %}
-                    <p><strong>Trailer:</strong> No hay trailer disponible.</p>
                 {% endif %}
 
         <!-- ========================================= -->

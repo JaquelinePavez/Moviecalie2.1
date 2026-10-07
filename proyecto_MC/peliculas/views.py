@@ -1,4 +1,3 @@
-
 from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -173,20 +172,20 @@ def editar_resenas(request, pk):
 #def eliminar_resena(request, pk):
 
     # Solo se elimina la reseña cuando se recibe una petición POST.
-    if request.method == "POST":
+    #if request.method == "POST":
         # Busca la reseña y verifica que pertenezca al usuario que inició sesión.
             # Si no existe o no pertenece al usuario, devuelve un error 404.
-        resena = get_object_or_404(Resena, pk=pk, autor=request.user)
+     #   resena = get_object_or_404(Resena, pk=pk, autor=request.user)
 
         # Guardamos el ID de la película antes de eliminar la reseña.
-        pelicula_id = resena.pelicula_id
+      #  pelicula_id = resena.pelicula_id
 
         # Elimina la reseña de la base de datos.
-        resena.delete()
-        messages.success(request, "La reseña se eliminó.")
+       # resena.delete()
+        #messages.success(request, "La reseña se eliminó.")
 
         # Redirige a las reseñas de la película.
-        return redirect("peliculas:resenas_pelicula", id=pelicula_id)
+       # return redirect("peliculas:resenas_pelicula", id=pelicula_id)
 
 
 # Mixin: pide sesión y limita el conjunto a las reseñas del usuario
@@ -196,7 +195,6 @@ class ResenasPropiasMixin(LoginRequiredMixin):
     def get_queryset(self):
         return super().get_queryset().filter(autor=self.request.user)
 
-@login_required
 # ELIMINACIÓN: GET muestra la confirmación, POST borra. Solo el autor
 class ResenaEliminar(ResenasPropiasMixin, DeleteView):
     http_method_names = ["get", "post", "head", "options"]
