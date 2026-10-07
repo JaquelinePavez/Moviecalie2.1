@@ -201,19 +201,14 @@
 
                             <form
                                 method="POST"
-                                action="{% url 'peliculas:eliminar_resena' resena.pk %}"
+                                action="{% url 'peliculas:resena_eliminar' resena.pk %}"
                                 onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');"
                             >
-
                                 {% csrf_token %}
 
-                                <button
-                                    type="submit"
-                                    class="btn"
-                                >
+                                <button type="submit">
                                     Eliminar
                                 </button>
-
                             </form>
 
                         {% endif %}

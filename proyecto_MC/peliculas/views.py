@@ -200,7 +200,11 @@ class ResenaEliminar(ResenasPropiasMixin, DeleteView):
     http_method_names = ["get", "post", "head", "options"]
     template_name = "peliculas/confirmar_eliminacion.html"
     context_object_name = "resena"
-    success_url = reverse_lazy("peliculas:resenas_pelicula")
+    #success_url = reverse_lazy("peliculas:resenas_pelicula")
+
+    def get_success_url(self):
+         # Después de eliminar la reseña, vuelve a la página de reseñas de la película
+        return reverse_lazy("peliculas:resenas_pelicula", kwargs={"id": self.object.pelicula_id})
 
     def form_valid(self, form):
         try:
@@ -210,3 +214,5 @@ class ResenaEliminar(ResenasPropiasMixin, DeleteView):
             return redirect("peliculas:detalle_resena", pk=self.object.pk)
         messages.success(self.request, "La reseña se eliminó.")
         return respuesta
+    
+    
