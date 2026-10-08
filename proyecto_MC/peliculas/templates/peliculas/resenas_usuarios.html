@@ -119,7 +119,7 @@
                 class="boton-superior"
                 style="cursor:pointer;"
             >
-                Agregar reseña
+                {{ titulo_pagina }}
             </summary>
 
             {% if user.is_authenticated %}
@@ -198,15 +198,16 @@
                                 Editar
                             </a>
 
-
+                            
                             <form
                                 method="POST"
                                 action="{% url 'peliculas:resena_eliminar' resena.pk %}"
                                 onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');"
                             >
+                            
                                 {% csrf_token %}
 
-                                <button type="submit">
+                                <button type="submit" class="btn">
                                     Eliminar
                                 </button>
                             </form>

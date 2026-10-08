@@ -10,3 +10,4 @@ class ResenaForm(forms.ModelForm):#USAMOS MODEL FORMS PARA QUE LAS VALIDACIONES
         model = Resena 
         fields = ["calificacion", "texto"] #ESTO ES LO QUE SE VA A DIBUJAR 
        
+  

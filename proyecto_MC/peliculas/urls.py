@@ -8,9 +8,8 @@ urlpatterns = [
 
     #agregue la vista basada en clases
     path("<int:pk>/resenas/eliminar/", views.ResenaEliminar.as_view(), name="resena_eliminar"),
-
+    
     #path("<int:id>/", views.detalle_pelicula, name="detalle"),
     path("<int:id>/resenas/", views.detalle_resenas_pelicula, name="resenas_pelicula"),
     path('catalogo/', views.catalogo_peliculas, name='catalogo'),
 ]
-

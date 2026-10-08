@@ -1,11 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.core.exceptions import ValidationError
-from django.db.models import Q
 from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
-from django.db.models import Q, Avg  # agregamos Avg
-from .forms import ResenaForm
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
+from django.db.models import Q, Avg  # agregamos Avg
+from django.db.models.deletion import ProtectedError
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.db import transaction
+from .forms import ResenaForm
+from .models import Pelicula, Resena
+from django.views.decorators.http import require_http_methods
 
 def catalogo_peliculas(request):
     # Optimiza consultas separadas cargando las relaciones en una sola query
@@ -91,6 +97,7 @@ def detalle_resenas_pelicula(request, id):
         form = ResenaForm()  # dibuja el formulario vacio
         contexto = {
             "pelicula": pelicula,
+            "titulo_pagina": "Agregar reseña",
             "resenas": pelicula.resenas.order_by("-id_resena"),
             "promedio_resenas": promedio_resenas,
             "form": form,
@@ -130,25 +137,63 @@ def detalle_resenas_pelicula(request, id):
             "resenas": pelicula.resenas.order_by("-id_resena"),
             "promedio_resenas": promedio_resenas,
             "form": form,
+            "titulo_pagina": "Agregar reseña",
         }
 
         return render(request, "peliculas/resenas_usuarios.html", contexto)
 
-
 @login_required # El usuario debe estar autenticado sí o sí 
 @require_http_methods(["GET", "POST"])
 def editar_resenas(request, pk):
-    resena = get_object_or_404(Resena, pk=pk, autor=request.user) # Identifica el usuario sino devuelve 404
+    #obtenemos la reseña asegurando que pertenezca al usuario logueado
+    resena = get_object_or_404(Resena, pk=pk, autor=request.user)
     
-    form = ResenaForm(request.POST, instance=resena) # Recibe los datos enviados y validados
     if request.method == "POST":
         form = ResenaForm(request.POST, instance=resena)
+        if form.is_valid():
+            with transaction.atomic():
+                resena = form.save()
+            messages.success(request, "La reseña se actualizó correctamente.")
+            
+            return redirect("peliculas:resenas_pelicula", id=resena.pelicula.pk)
     else:
         form = ResenaForm(instance=resena)
     
-    if request.method == "POST" and form.is_valid():
-        with transaction.atomic():
-            resena = form.save()  # Guarda la instancia y las etiquetas.
-        messages.success(request, "La reseña se actualizó correctamente.")
-        return redirect("peliculas:resenas_peliculas", pk=tarea.pk)
-    return render(request, "peliculas/resenas_usuarios.html", contexto("fbv", form=form, titulo_pagina="Editar tarea"))
+    contexto = {
+        "form": form,
+        "titulo_pagina": "Editar reseña",
+        "resena": resena,
+        "pelicula": resena.pelicula, 
+    }
+    
+    return render(request, "peliculas/resenas_usuarios.html", contexto)
+
+
+
+# Mixin: pide sesión y limita el conjunto a las reseñas del usuario
+class ResenasPropiasMixin(LoginRequiredMixin):
+    model = Resena
+
+    def get_queryset(self):
+        return super().get_queryset().filter(autor=self.request.user)
+
+
+
+class ResenaEliminar(ResenasPropiasMixin, DeleteView):
+    http_method_names = ["get", "post", "head", "options"]
+    template_name = "peliculas/confirmar_eliminacion.html"
+    context_object_name = "resena"
+    #success_url = reverse_lazy("peliculas:resenas_pelicula")
+    
+    def get_success_url(self):
+         # Después de eliminar la reseña, vuelve a la página de reseñas de la película
+        return reverse_lazy("peliculas:resenas_pelicula", kwargs={"id": self.object.pelicula_id})
+
+    def form_valid(self, form):
+        try:
+            respuesta = super().form_valid(form)
+        except ProtectedError:
+            messages.error(self.request, "Hay datos relacionados que impiden eliminarla.")
+            return redirect("peliculas:detalle_resena", pk=self.object.pk)
+        messages.success(self.request, "La reseña se eliminó.")
+        return respuesta 
