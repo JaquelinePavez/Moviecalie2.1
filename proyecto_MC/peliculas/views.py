@@ -1,16 +1,10 @@
-from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
 from django.db.models import Q, Avg  # agregamos Avg
-from django.db.models.deletion import ProtectedError
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
 from .forms import ResenaForm
-from .models import Pelicula, Resena
+from django.contrib.auth.decorators import login_required
 
 
 def catalogo_peliculas(request):
@@ -142,77 +136,19 @@ def detalle_resenas_pelicula(request, id):
 
 
 @login_required # El usuario debe estar autenticado sí o sí 
+@require_http_methods(["GET", "POST"])
 def editar_resenas(request, pk):
     resena = get_object_or_404(Resena, pk=pk, autor=request.user) # Identifica el usuario sino devuelve 404
-    pelicula = resena.pelicula
     
+    form = ResenaForm(request.POST, instance=resena) # Recibe los datos enviados y validados
     if request.method == "POST":
-        form = ResenaForm(request.POST, instance=resena) # Recibe los datos enviados
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Tu reseña se edito correctamente.")
-            
-            return redirect("peliculas:resenas_pelicula", id=pelicula.pk) 
-    else: 
-        # Método GET: Muestra el formulario con los datos actuales
-        form = ResenaForm(instance=resena) 
-
-    # Colocar el render aquí al final soluciona dos cosas:
-    # 1. Muestra la página en el GET inicial.
-    # 2. Si el formulario POST tiene errores, vuelve a mostrar la página enseñando los errores de validación.
-    contexto = {
-        'form': form,
-        'resena': resena,
-        'pelicula': pelicula,
-    }
-    return render(request, "peliculas/resenas_usuarios.html", contexto)
-
-
-#@login_required
-#def eliminar_resena(request, pk):
-
-    # Solo se elimina la reseña cuando se recibe una petición POST.
-    #if request.method == "POST":
-        # Busca la reseña y verifica que pertenezca al usuario que inició sesión.
-            # Si no existe o no pertenece al usuario, devuelve un error 404.
-     #   resena = get_object_or_404(Resena, pk=pk, autor=request.user)
-
-        # Guardamos el ID de la película antes de eliminar la reseña.
-      #  pelicula_id = resena.pelicula_id
-
-        # Elimina la reseña de la base de datos.
-       # resena.delete()
-        #messages.success(request, "La reseña se eliminó.")
-
-        # Redirige a las reseñas de la película.
-       # return redirect("peliculas:resenas_pelicula", id=pelicula_id)
-
-
-# Mixin: pide sesión y limita el conjunto a las reseñas del usuario
-class ResenasPropiasMixin(LoginRequiredMixin):
-    model = Resena
-
-    def get_queryset(self):
-        return super().get_queryset().filter(autor=self.request.user)
-
-# ELIMINACIÓN: GET muestra la confirmación, POST borra. Solo el autor
-class ResenaEliminar(ResenasPropiasMixin, DeleteView):
-    http_method_names = ["get", "post", "head", "options"]
-    template_name = "peliculas/confirmar_eliminacion.html"
-    context_object_name = "resena"
-    #success_url = reverse_lazy("peliculas:resenas_pelicula")
-
-    def get_success_url(self):
-         # Después de eliminar la reseña, vuelve a la página de reseñas de la película
-        return reverse_lazy("peliculas:resenas_pelicula", kwargs={"id": self.object.pelicula_id})
-
-    def form_valid(self, form):
-        try:
-            respuesta = super().form_valid(form)
-        except ProtectedError:
-            messages.error(self.request, "Hay datos relacionados que impiden eliminarla.")
-            return redirect("peliculas:detalle_resena", pk=self.object.pk)
-        messages.success(self.request, "La reseña se eliminó.")
-        return respuesta
+        form = ResenaForm(request.POST, instance=resena)
+    else:
+        form = ResenaForm(instance=resena)
     
-    
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            resena = form.save()  # Guarda la instancia y las etiquetas.
+        messages.success(request, "La reseña se actualizó correctamente.")
+        return redirect("peliculas:resenas_peliculas", pk=tarea.pk)
+    return render(request, "peliculas/resenas_usuarios.html", contexto("fbv", form=form, titulo_pagina="Editar tarea"))
