@@ -178,7 +178,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
         # decimal_places=1 cuántos van después de la coma. Con estos valores, el rango representable va de 0.0 a 99.9
         max_digits=3, 
         decimal_places=1,
-        default=0.1
+        default=0
     ) #Si no cargo una calificación
     #===================================#
     #       CARDINALIDAD                #
@@ -252,7 +252,7 @@ class Pelicula(models.Model): #Al heredar de models.Model, le estás diciendo a 
                 name="pelicula_fecha_estreno_valida",
             ),
             models.CheckConstraint(
-                condition=Q(calificacion_promedio__gte=0.1) & Q(calificacion_promedio__lte=10),
+                condition=Q(calificacion_promedio__gte=0) & Q(calificacion_promedio__lte=10),
                 name="pelicula_calificacion_en_rango",
                 # CheckConstraint garantiza que 
                 #ningún error en la lógica de la aplicación, 

@@ -90,7 +90,9 @@ def catalogo_peliculas(request):
 
 def detalle(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula
+    # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula
+    # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0
 
     ya_comento = False
     if request.user.is_authenticated:
@@ -116,7 +118,9 @@ def detalle(request, id):
 @login_required
 def agregar_resena(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+    # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+    # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0    
     form = ResenaForm(request.POST)
 
     #comprueba si el usuario ya escribió una reseña para esta película
@@ -157,7 +161,9 @@ def editar_resenas(request, pk):
     #obtenemos la reseña asegurando que pertenezca al usuario logueado
     resena = get_object_or_404(Resena, pk=pk, autor=request.user)
     pelicula = resena.pelicula
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+    # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+    # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0    
     resenas_listado = pelicula.resenas.order_by("-id_resena")
     if request.method == "POST":
         form = ResenaForm(request.POST, instance=resena)

@@ -7,7 +7,9 @@ app_name = "peliculas"
 urlpatterns = [ 
         #vistas basadas en funciones
     path("<int:pk>/editar/", views_fbv.editar_resenas, name="editar_resenas"),
-    path("<int:pk>/resenas/eliminar/", views_fbv.eliminar_reseña, name="resena"),
+    # Antes:
+    # path("<int:pk>/resenas/eliminar/", views_fbv.eliminar_reseña, name="resena"),
+    path("resenas/<int:pk>/eliminar/", views_fbv.eliminar_resena, name="resena_eliminar"),
     path("<int:id>/resenas/agregar/", views_fbv.agregar_resena, name="agregar"),
     path("<int:id>/resenas/", views_fbv.detalle, name="detalle"), #cambie name= resenas_peliculas por detalle y detalle_resena_pelicula por detalle
     path('catalogo/', views_fbv.catalogo_peliculas, name='catalogo'),

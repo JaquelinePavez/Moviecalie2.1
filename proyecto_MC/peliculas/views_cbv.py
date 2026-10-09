@@ -40,8 +40,11 @@ class ResenaLista(ListView):
 
         # Agrega la película y el promedio de las calificaciones de sus reseñas al contexto
         datos["pelicula"] = self.pelicula
-        datos["promedio_resenas"] = self.pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+        # ANTES: datos["promedio_resenas"] = self.pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+        # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
+        datos["promedio_resenas"] = self.pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0
         return datos
+        
 
 
 class ResenaDetalle(DetailView):

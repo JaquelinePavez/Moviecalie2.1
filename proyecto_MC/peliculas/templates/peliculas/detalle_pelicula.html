@@ -38,7 +38,7 @@
                 <h2>Calificación promedio:</h2>
                 <p>⭐ 
                     {% if promedio_resenas %}
-                        {{ promedio_resenas|floatformat:1 }} / 5
+                        {{ promedio_resenas|floatformat:1 }} / 10 <!-- Aca habia 5 lo cambie a 10 -->
                     {% else %}
                         Sin calificaciones aún
                     {% endif %}
