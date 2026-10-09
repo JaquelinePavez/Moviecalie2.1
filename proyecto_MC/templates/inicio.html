@@ -33,7 +33,7 @@
                 
                 <p class="subtitulo-tarjeta"> {{ pelicula.titulo }} </p>
                 
-                <a href="{% url 'peliculas:resenas_pelicula' pelicula.id %}" class="btn"> Ver película </a>
+                <a href="{% url 'peliculas:detalle' pelicula.id %}" class="btn"> Ver película </a>
             </div>
 
         {% empty %}

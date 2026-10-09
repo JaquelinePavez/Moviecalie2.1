@@ -1,246 +1,76 @@
-{% extends "base.html" %}
-{% load static %}
+<!-- ========================================= -->
+<!-- LISTADO DE RESEÑAS DE USUARIOS            -->
+<!-- ========================================= -->
 
-{% block title %}
-    Reseñas de usuarios
-{% endblock %}
+<h2>Reseñas de usuarios:</h2>
 
-<!-- esta pagina si puede volver al inicio -->
-{% block navegacion %}
-    {% include "componentes/navegacion.html" %}
-{% endblock %}
+<section class="contenedor-aside">
 
-{% block content %}
+    {% for resena in resenas %}
 
-    {% if pelicula %}
+        <div class="item-aside">
 
-        <!-- ========================================= -->
-        <!-- INFORMACIÓN PRINCIPAL DE LA PELÍCULA     -->
-        <!-- ========================================= -->
+            <p>
+                <b>Calificación:</b>
+                {{ resena.calificacion }} / 5
+            </p>
 
-        <div class="cabecera-pelicula" style="display:flex; gap:20px; align-items:flex-start;">
+            <p class="resena-autor">
+                {{ resena.autor.username }} dice:
+            </p>
 
-            {% if pelicula.imagen_portada %}
+            <p class="resena-texto">
+                "{{ resena.texto }}"
+            </p>
 
-                <img
-                    src="{{ pelicula.imagen_portada.url }}"
-                    width="400"
-                    style="border-radius:10px;"
-                    alt="{{ pelicula.titulo }}"
-                >
-            {% endif %}
+            <div class="botonera">
 
-            <div class="info-pelicula">
+                <!-- Lo ve todo el mundo -->
+                <button class="btn">
+                    Reportes {{ resena.reportes }}
+                </button>
 
-                <!-- Título -->
-                <h1 class="titulo-principal">
-                    {{ pelicula.titulo }}
-                </h1>
+                <!-- SOLO lo ve el autor de la reseña -->
+                {% if resena.autor_id == user.id %}
 
-                <!-- Calificación -->
-                <h2>Calificación:</h2>
-                <p>⭐ {{ pelicula.calificacion_promedio }} / 10</p>
+                    <a
+                        href="{% url 'peliculas:editar_resenas' resena.pk %}"
+                        class="btn"
+                    >
+                        Editar
+                    </a>
 
-                <!-- Sinopsis -->
-                <h2>Sinopsis:</h2>
-                <p>{{ pelicula.sinopsis }}</p>
+                    <form
+                        method="POST"
+                        action="{% url 'peliculas:resena_eliminar' resena.pk %}"
+                        onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');"
+                        style="display:inline;"
+                    >
+                        {% csrf_token %}
+                        <button type="submit" class="btn">
+                            Eliminar
+                        </button>
+                    </form>
 
-                <!-- Duración -->
-                <p><strong>Duración:</strong>{{ pelicula.duracion_minutos }} minutos</p>
-
-                <!-- Fecha de estreno -->
-                <p><strong>Fecha de estreno:</strong>{{ pelicula.fecha_estreno|date:"d/m/Y" }}</p>
-
-                <!-- Clasificación -->
-                <p><strong>Clasificación:</strong>{{ pelicula.get_clasificacion_display }}</p>
-
-                <!-- Actores -->
-                <p><strong>Actores:</strong>
-                    {% for actor in pelicula.actores.all %}
-                        {{ actor.nombre }} {{ actor.apellido }}
-                        {% if not forloop.last %}
-                            ,
-                        {% endif %}
-                    {% empty %}
-                        No hay actores cargados.
-                    {% endfor %}
-                </p>
-
-                <!-- Directores -->
-                <p><strong>Directores:</strong>
-                    {% for director in pelicula.directores.all %}
-                        {{ director.nombre }} {{ director.apellido }}
-                        {% if not forloop.last %}
-                            ,
-                        {% endif %}
-                    {% empty %}
-                        No hay directores cargados.
-                    {% endfor %}
-                </p>
-
-                <!-- Géneros -->
-                <p><strong>Géneros:</strong>
-                    {% for genero in pelicula.generos.all %}
-                        {{ genero.nombre }}
-                        {% if not forloop.last %}
-                            ,
-                        {% endif %}
-                    {% empty %}
-                        No hay géneros cargados.
-                    {% endfor %}
-                </p>
-
-                <!-- Trailer -->
-                {% if pelicula.trailer_embed_url %}
-                    <div class="trailer">
-                        <h2>Tráiler</h2>
-
-                        <iframe
-                            src="{{ pelicula.trailer_embed_url }}"
-                            title="Tráiler de {{ pelicula.titulo }}"
-                            width="800"
-                            height="450"
-                            
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
                 {% endif %}
 
-        <!-- ========================================= -->
-        <!-- AGREGAR RESEÑA                            -->
-        <!-- ========================================= -->
-
-        <details style="margin:20px 0;">
-
-            <summary
-                class="boton-superior"
-                style="cursor:pointer;"
-            >
-                {{ titulo_pagina }}
-            </summary>
-
-            {% if user.is_authenticated %}
-
-                <form
-                    method="POST"
-                    class="categoria-bloque"
-                    style="margin-top:15px;"
-                >
-
-                    {% csrf_token %}
-
-                    {{ form.as_p }}
-
-                    <button
-                        type="submit"
-                        class="accion_publicar"
-                    >
-                        Publicar Reseña
-                    </button>
-
-                </form>
-
-            {% else %}
-
-                <a href="{% url 'usuarios:login' %}?next={{ request.path }}">
-                    Inicia Sesion
+                <!-- Lo ve todo el mundo -->
+                <a class="btn">
+                    {{ resena.comentarios_count }} Comentarios
                 </a>
 
-            {% endif %}
+                <button class="btn">
+                    Ocultar
+                </button>
 
-        </details>
+            </div>
 
+        </div>
 
-        <!-- ========================================= -->
-        <!-- RESEÑAS DE USUARIOS                       -->
-        <!-- ========================================= -->
+    {% empty %}
 
-        <h2>Reseñas de usuarios:</h2>
+        <p>No hay reseñas publicadas para esta película. ¡Sé el primero en opinar!</p>
 
-        <section class="contenedor-aside">
+    {% endfor %}
 
-            {% for resena in resenas %}
-
-                <div class="item-aside">
-
-                    <p>
-                        <b>Calificación:</b>
-                        {{ resena.calificacion }}
-                    </p>
-
-                    <p class="resena-autor">
-                        {{ resena.autor.username }} dice:
-                    </p>
-
-                    <p class="resena-texto">
-                        "{{ resena.texto }}"
-                    </p>
-
-
-                    <div class="botonera">
-
-                        <!-- Lo ve todo el mundo -->
-                        <button class="btn">
-                            Reportes {{ resena.reportes }}
-                        </button>
-
-
-                        <!-- SOLO lo ve el autor de la reseña -->
-                        {% if resena.autor_id == user.id %}
-
-                            <a
-                                href="{% url 'peliculas:editar_resenas' resena.pk %}"
-                                class="btn"
-                            >
-                                Editar
-                            </a>
-
-                            
-                            <form
-                                method="POST"
-                                action="{% url 'peliculas:resena_eliminar' resena.pk %}"
-                                onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');"
-                            >
-                            
-                                {% csrf_token %}
-
-                                <button type="submit" class="btn">
-                                    Eliminar
-                                </button>
-                            </form>
-
-                        {% endif %}
-
-
-                        <!-- Lo ve todo el mundo -->
-                        <a class="btn">
-                            {{ resena.comentarios_count }} Comentarios
-                        </a>
-
-                        <button class="btn">
-                            Ocultar
-                        </button>
-
-                    </div>
-
-                </div>
-
-            {% empty %}
-
-                <p>No hay reseñas publicadas.</p>
-
-            {% endfor %}
-
-        </section>
-
-
-    {% else %}
-
-        <p>Película no encontrada.</p>
-
-    {% endif %}
-
-{% endblock %}
+</section>

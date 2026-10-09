@@ -139,7 +139,9 @@
                     <img src="{{ pelicula.imagen_portada.url }}" alt="{{ pelicula.titulo }}">
                 {% endif %}
                 <div class="tarjeta-pelicula-cuerpo">
-                    <h3>{{ pelicula.titulo }}</h3>
+                    <h3 class="titulo-pelicula">
+                        <a href="{% url 'peliculas:detalle' pelicula.id %}">{{ pelicula.titulo }}</a>
+                    </h3>
                     <p class="tarjeta-pelicula-meta">Estreno: {{ pelicula.fecha_estreno|date:"Y" }}</p>
                     <p class="tarjeta-pelicula-badges">
                         <span class="badge">⭐ {{ pelicula.calificacion_promedio }} / 10</span>

@@ -1,0 +1,83 @@
+<!-- ========================================= -->
+<!-- SECCIÓN AGREGAR RESEÑA                    -->
+<!-- ========================================= -->
+
+<details style="margin:20px 0;" {% if form.errors or ya_comento %}open{% endif %}>
+
+    <summary class="boton-superior" style="cursor:pointer;">
+        {{ titulo_pagina|default:"Agregar reseña" }}
+    </summary>
+
+    {% if user.is_authenticated %}
+
+        {% if ya_comento %}
+            <!-- Mensaje preventivo si el usuario ya comentó -->
+            <div class="alert alert-info" style="margin-top:15px;" role="status">
+                <p><strong>Aviso:</strong> Ya has publicado una reseña para esta película. Solo se permite una reseña por usuario.</p>
+            </div>
+        {% else %}
+            <!-- Formulario de publicación con campos personalizados -->
+            <form
+                method="POST"
+                action="{% url 'peliculas:agregar' pelicula.id %}"
+                class="categoria-bloque"
+                style="margin-top:15px;"
+                novalidate
+            >
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <p class="aviso" role="alert">Revisá los campos indicados. Tus valores se conservan.</p>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Campos ocultos -->
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                    {{ field.errors }}
+                {% endfor %}
+
+                <!-- Campos visibles -->
+                {% for field in form.visible_fields %}
+                    <div class="campo">
+                        {{ field.label_tag }}
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <div class="ayuda" id="{{ field.auto_id }}_helptext">
+                                {{ field.help_text }}
+                            </div>
+                        {% endif %}
+
+                        {% if field.errors %}
+                            <div class="errores-campo">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="accion_publicar" style="margin-top:10px;">
+                    Publicar Reseña
+                </button>
+            </form>
+        {% endif %}
+
+    {% else %}
+
+        <p style="margin-top:15px;">
+            <a href="{% url 'usuarios:login' %}?next={{ request.path }}">
+                Inicia sesión
+            </a> para dejar una reseña.
+        </p>
+
+    {% endif %}
+
+</details>

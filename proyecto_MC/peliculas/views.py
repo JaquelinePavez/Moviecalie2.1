@@ -89,10 +89,13 @@ def catalogo_peliculas(request):
     return render(request, 'peliculas/catalogo.html', context)
 
 
-def detalle_resenas_pelicula(request, id):
+def detalle(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
     promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula
 
+    ya_comento = False
+    if request.user.is_authenticated:
+        ya_comento = Resena.objects.filter(pelicula=pelicula, autor=request.user).exists()
     if request.method == "GET":  # permite que un usuario no autenticado pueda visualizar las resenas
         form = ResenaForm()  # dibuja el formulario vacio
         contexto = {
@@ -101,53 +104,62 @@ def detalle_resenas_pelicula(request, id):
             "resenas": pelicula.resenas.order_by("-id_resena"),
             "promedio_resenas": promedio_resenas,
             "form": form,
+            "ya_comento": ya_comento
         }
 
-        return render(request, "peliculas/resenas_usuarios.html", contexto)
-
-    if request.method == "POST":  # para publicar requiere sesion
+        return render(request, "peliculas/detalle_pelicula.html", contexto)
+    else: 
         if not request.user.is_authenticated:
             return redirect_to_login(request.get_full_path())
+        else:
+            return redirect("peliculas:agregar", id=id)
 
-        form = ResenaForm(request.POST)  # envia la peticion para validar los datos
+@login_required
+def agregar_resena(request, id):
+    pelicula = get_object_or_404(Pelicula, id=id)
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+    form = ResenaForm(request.POST)
 
-        if form.is_valid():  # si es valido devuelve True, sino devuelve False
-            nueva_resena = form.save(commit=False)  # obtiene los datos validados pero no los guarda aun
-            calificacion = form.cleaned_data["calificacion"]  # limpia los datos y los guarda con su tipo correspondiente
-            texto = form.cleaned_data["texto"]
+    #comprueba si el usuario ya escribió una reseña para esta película
+    ya_tiene_resena = Resena.objects.filter(pelicula=pelicula, autor=request.user).exists()
 
-            nueva_resena = Resena(  # crea el objeto con los datos ya validados
-                pelicula=pelicula,
-                autor=request.user,  # Django llena automáticamente con el usuario real que está logueado en esa sesión
-                calificacion=calificacion,
-                texto=texto,
-            )
+    if ya_tiene_resena:
+        # Agregamos un error general (non_field_error) al formulario
+        form.add_error(None, "Ya has publicado una reseña para esta película.")
 
-            try:  # dispara las validaciones para el conteo de palabras definido en models con clean()
-                nueva_resena.full_clean()
-            except ValidationError as errores:  # si algo falla
-                form.add_error(None, errores.messages)  # agrega los errores al formulario
-            else:
-                nueva_resena.save()  # lo guarda en la BBDD
-                messages.success(request, "Tu reseña se publicó correctamente.")
-                return redirect("peliculas:resenas_pelicula", id=pelicula.id)
+    elif form.is_valid():
+        nueva_resena = form.save(commit=False)
+        nueva_resena.pelicula = pelicula
+        nueva_resena.autor = request.user
 
-        contexto = {
-            "pelicula": pelicula,
-            "resenas": pelicula.resenas.order_by("-id_resena"),
-            "promedio_resenas": promedio_resenas,
-            "form": form,
-            "titulo_pagina": "Agregar reseña",
-        }
+        try:
+            nueva_resena.full_clean()
+        except ValidationError as errores:
+            form.add_error(None, errores.messages)
+        else:
+            nueva_resena.save()
+            messages.success(request, "Tu reseña se publicó correctamente.")
+            return redirect("peliculas:detalle", id=pelicula.id)
 
-        return render(request, "peliculas/resenas_usuarios.html", contexto)
+    contexto = {
+        "pelicula": pelicula,
+        "resenas": pelicula.resenas.order_by("-id_resena"),
+        "promedio_resenas": promedio_resenas,
+        "form": form,
+        "titulo_pagina": "Agregar reseña",
+        "ya_comento": ya_tiene_resena,
+    }
+
+    return render(request, "peliculas/detalle_pelicula.html", contexto)
 
 @login_required # El usuario debe estar autenticado sí o sí 
 @require_http_methods(["GET", "POST"])
 def editar_resenas(request, pk):
     #obtenemos la reseña asegurando que pertenezca al usuario logueado
     resena = get_object_or_404(Resena, pk=pk, autor=request.user)
-    
+    pelicula = resena.pelicula
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
+    resenas_listado = pelicula.resenas.order_by("-id_resena")
     if request.method == "POST":
         form = ResenaForm(request.POST, instance=resena)
         if form.is_valid():
@@ -155,7 +167,7 @@ def editar_resenas(request, pk):
                 resena = form.save()
             messages.success(request, "La reseña se actualizó correctamente.")
             
-            return redirect("peliculas:resenas_pelicula", id=resena.pelicula.pk)
+            return redirect("peliculas:detalle", id=resena.pelicula.pk)
     else:
         form = ResenaForm(instance=resena)
     
@@ -164,11 +176,16 @@ def editar_resenas(request, pk):
         "titulo_pagina": "Editar reseña",
         "resena": resena,
         "pelicula": resena.pelicula, 
+        "resenas": resenas_listado,          
+        "promedio_resenas": promedio_resenas, 
+        "ya_comento": False,
     }
     
-    return render(request, "peliculas/resenas_usuarios.html", contexto)
+    return render(request, "peliculas/detalle_pelicula.html", contexto)
 
-
+#========================================#
+# ESTO VA EN LA VISTA BASADA EN CLASES   #
+#========================================#
 
 # Mixin: pide sesión y limita el conjunto a las reseñas del usuario
 class ResenasPropiasMixin(LoginRequiredMixin):
@@ -183,17 +200,17 @@ class ResenaEliminar(ResenasPropiasMixin, DeleteView):
     http_method_names = ["get", "post", "head", "options"]
     template_name = "peliculas/confirmar_eliminacion.html"
     context_object_name = "resena"
-    #success_url = reverse_lazy("peliculas:resenas_pelicula")
+    
     
     def get_success_url(self):
          # Después de eliminar la reseña, vuelve a la página de reseñas de la película
-        return reverse_lazy("peliculas:resenas_pelicula", kwargs={"id": self.object.pelicula_id})
+        return reverse_lazy("peliculas:detalle", kwargs={"id": self.object.pelicula_id})
 
     def form_valid(self, form):
         try:
             respuesta = super().form_valid(form)
         except ProtectedError:
             messages.error(self.request, "Hay datos relacionados que impiden eliminarla.")
-            return redirect("peliculas:detalle_resena", pk=self.object.pk)
+            return redirect("peliculas:detalle", pk=self.object.pk)
         messages.success(self.request, "La reseña se eliminó.")
         return respuesta 
