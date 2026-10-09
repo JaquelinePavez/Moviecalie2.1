@@ -206,4 +206,4 @@ def eliminar_resena(request, pk):
         messages.success(request, "La reseña se eliminó.")
 
         # Redirige a las reseñas de la película.
-        return redirect("peliculas:resenas_pelicula", id=pelicula_id)
+        return redirect("peliculas:detalle", id=pelicula_id)

@@ -2,7 +2,8 @@
 <!-- SECCIÓN AGREGAR RESEÑA                    -->
 <!-- ========================================= -->
 
-<details style="margin:20px 0;" {% if form.errors or ya_comento %}open{% endif %}>
+<!-- Esto cambié: agregué "or resena" para que la sección se abra automáticamente al editar una reseña. -->
+<details style="margin:20px 0;" {% if form.errors or ya_comento or resena %}open{% endif %}>
 
     <summary class="boton-superior" style="cursor:pointer;">
         {{ titulo_pagina|default:"Agregar reseña" }}
@@ -10,16 +11,24 @@
 
     {% if user.is_authenticated %}
 
-        {% if ya_comento %}
+        <!-- Esto cambié: agregué "and not resena" para que el aviso de reseña existente no oculte el formulario
+             cuando el usuario está editando su propia reseña. -->
+        {% if ya_comento and not resena %}
+
             <!-- Mensaje preventivo si el usuario ya comentó -->
             <div class="alert alert-info" style="margin-top:15px;" role="status">
                 <p><strong>Aviso:</strong> Ya has publicado una reseña para esta película. Solo se permite una reseña por usuario.</p>
             </div>
+
         {% else %}
-            <!-- Formulario de publicación con campos personalizados -->
+
+            <!-- Formulario de publicación o edición -->
+
+            <!-- Esto cambié: el formulario se envía a la vista de edición si existe una reseña; si no, se envía
+                 a la vista para agregar una nueva. -->
             <form
                 method="POST"
-                action="{% url 'peliculas:agregar' pelicula.id %}"
+                action="{% if resena %}{% url 'peliculas:editar_resenas' resena.pk %}{% else %}{% url 'peliculas:agregar' pelicula.id %}{% endif %}"
                 class="categoria-bloque"
                 style="margin-top:15px;"
                 novalidate
@@ -64,8 +73,13 @@
                     </div>
                 {% endfor %}
 
+                <!-- Esto cambié: el botón muestra "Guardar cambios" al editar y "Publicar Reseña" al agregar. -->
                 <button type="submit" class="accion_publicar" style="margin-top:10px;">
-                    Publicar Reseña
+                    {% if resena %}
+                        Guardar cambios
+                    {% else %}
+                        Publicar Reseña
+                    {% endif %}
                 </button>
             </form>
         {% endif %}
