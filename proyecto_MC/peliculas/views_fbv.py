@@ -88,7 +88,6 @@ def catalogo_peliculas(request):
     }
     return render(request, 'peliculas/catalogo.html', context)
 
-
 def detalle(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
     promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula
@@ -183,34 +182,22 @@ def editar_resenas(request, pk):
     
     return render(request, "peliculas/detalle_pelicula.html", contexto)
 
-#========================================#
-# ESTO VA EN LA VISTA BASADA EN CLASES   #
-#========================================#
+@login_required
+@require_http_methods(["GET", "POST"])
+def eliminar_resena(request, pk):
 
-# Mixin: pide sesión y limita el conjunto a las reseñas del usuario
-class ResenasPropiasMixin(LoginRequiredMixin):
-    model = Resena
+    # Solo se elimina la reseña cuando se recibe una petición POST.
+    if request.method == "POST":
+        # Busca la reseña y verifica que pertenezca al usuario que inició sesión.
+            # Si no existe o no pertenece al usuario, devuelve un error 404.
+        resena = get_object_or_404(Resena, pk=pk, autor=request.user)
 
-    def get_queryset(self):
-        return super().get_queryset().filter(autor=self.request.user)
+        # Guardamos el ID de la película antes de eliminar la reseña.
+        pelicula_id = resena.pelicula_id
 
+        # Elimina la reseña de la base de datos.
+        resena.delete()
+        messages.success(request, "La reseña se eliminó.")
 
-
-class ResenaEliminar(ResenasPropiasMixin, DeleteView):
-    http_method_names = ["get", "post", "head", "options"]
-    template_name = "peliculas/confirmar_eliminacion.html"
-    context_object_name = "resena"
-    
-    
-    def get_success_url(self):
-         # Después de eliminar la reseña, vuelve a la página de reseñas de la película
-        return reverse_lazy("peliculas:detalle", kwargs={"id": self.object.pelicula_id})
-
-    def form_valid(self, form):
-        try:
-            respuesta = super().form_valid(form)
-        except ProtectedError:
-            messages.error(self.request, "Hay datos relacionados que impiden eliminarla.")
-            return redirect("peliculas:detalle", pk=self.object.pk)
-        messages.success(self.request, "La reseña se eliminó.")
-        return respuesta 
+        # Redirige a las reseñas de la película.
+        return redirect("peliculas:resenas_pelicula", id=pelicula_id)
