@@ -10,18 +10,8 @@
 {% endblock %}
 
 
-
-
-
 {% block content %}
-{% comment %}
-        Pendiente: reconectar cuando el equipo resuelva como se va a cargar películas
-        (agregar_pelicula vía formulario propio, o directamente por el Django Admin).
-        <a href="{% url 'peliculas:agregar' %}" class="boton-superior">
-            Agregar película
-        </a>
-{% endcomment %}
-    <a href="{% url 'peliculas:catalogo' %}" class="boton-superior"> VER CATALOGO</a> 
+
     <div class="catalogo-peliculas">
 
         {% for pelicula in peliculas %}

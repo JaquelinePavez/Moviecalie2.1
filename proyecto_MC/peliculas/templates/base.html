@@ -16,10 +16,11 @@
 </head>
 <body>
     <header class="perfil">
+
+        <h1>MovieCali</h1>
         {% block navegacion %}
             {% include "componentes/navegacion.html" %}
         {% endblock %}
-        <h1>MovieCali</h1>
         <nav>
             {% if user.is_authenticated %} <!--verifica si esta logueado-->
                 <span>Hola, {{ user.username }}</span>

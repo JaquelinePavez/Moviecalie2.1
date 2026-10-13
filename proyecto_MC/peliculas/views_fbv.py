@@ -92,7 +92,7 @@ def detalle(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
     # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula
     # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0.1
 
     ya_comento = False
     if request.user.is_authenticated:
@@ -120,7 +120,7 @@ def agregar_resena(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)
     # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
     # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0    
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0.1    
     form = ResenaForm(request.POST)
 
     #comprueba si el usuario ya escribió una reseña para esta película
@@ -163,7 +163,7 @@ def editar_resenas(request, pk):
     pelicula = resena.pelicula
     # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
     # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0    
+    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0.1    
     resenas_listado = pelicula.resenas.order_by("-id_resena")
     if request.method == "POST":
         form = ResenaForm(request.POST, instance=resena)
