@@ -18,6 +18,12 @@
 
         <form method="post" action="{% url 'usuarios:registro' %}">
             {% csrf_token %}
+
+            {% if formulario.non_field_errors %}
+                <div class="auth-error">
+                    {{ formulario.non_field_errors }}
+                </div>
+            {% endif %}
             <label for ="id_email">Email</label>
             {{ formulario.email }}
             {% if formulario.email.errors %}
