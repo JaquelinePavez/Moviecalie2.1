@@ -62,7 +62,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ['templates'],# Le indica a Django buscar en la raíz
+        "DIRS": [BASE_DIR / "templates"],# Le indica a Django buscar en la raíz
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -136,12 +136,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'usuarios:login' #si alguien intenta entrar a una pagina protegida sin estar logueado, mandalo para acá
 AUTH_USER_MODEL = "usuarios.Usuario" 
 LOGIN_REDIRECT_URL = 'inicio' #si alguien se loguea desde la pantalla de login directamente (sin venir de una página protegida), mandalo para acá al terminar
-
+LOGOUT_REDIRECT_URL = "usuarios:login" #después de cerrar sesión, MovieCali vuelve al inicio de sesión.
 # esto lo saque de aca :
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    "default": {
-        "BACKEND": "django.core.mail.backends.console.EmailBackend",
-    },
-}
+# Solo para desarrollo local.
+# Muestra los correos en la terminal en lugar de enviarlos.
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "nombre@moviecali.local"
+
+
+#MAILERS = {
+#    "default": {
+#        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+#    },
+#}
