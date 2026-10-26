@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Crear una contraseña nueva</h1>
+
+{% if validlink %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar contraseña nueva</button>
+    </form>
+{% else %}
+    <p>El enlace no es válido o venció.</p>
+    <a href="{% url 'usuarios:recuperar_contrasena' %}">
+        Solicitar otro enlace
+    </a>
+{% endif %}
+
+{% endblock %}

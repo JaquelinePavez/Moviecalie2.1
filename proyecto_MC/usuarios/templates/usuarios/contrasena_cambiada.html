@@ -1,0 +1,10 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Contraseña actualizada</h1>
+
+<p>Ya podés iniciar sesión con tu contraseña nueva.</p>
+
+<a href="{% url 'usuarios:login' %}">Iniciar sesión</a>
+{% endblock %}

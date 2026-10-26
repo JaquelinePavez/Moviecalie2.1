@@ -1,0 +1,12 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Solicitud procesada</h1>
+
+<p>
+    Recibirás instrucciones para recuperar el acceso.
+</p>
+
+<a href="{% url 'usuarios:login' %}">Volver al inicio de sesión</a>
+{% endblock %}

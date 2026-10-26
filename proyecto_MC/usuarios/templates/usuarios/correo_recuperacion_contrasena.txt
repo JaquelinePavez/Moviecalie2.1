@@ -1,0 +1,9 @@
+Hola.
+
+Recibimos una solicitud para cambiar la contraseña de tu cuenta de MovieCali.
+
+Para elegir una contraseña nueva, ingresá al siguiente enlace:
+
+{{ protocol }}://{{ domain }}{% url 'usuarios:confirmar_nueva_contrasena' uidb64=uid token=token %}
+
+Si no solicitaste este cambio, podés ignorar este mensaje.
