@@ -1,6 +1,5 @@
 from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Avg  # agregamos Avg
@@ -11,7 +10,10 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.db import transaction
 from .forms import ResenaForm
 from .models import Pelicula, Resena
-from django.views.decorators.http import require_http_methods
+
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.views import redirect_to_login
+from django.views.decorators.http import require_http_methods, require_POST
 
 def catalogo_peliculas(request):
     # Optimiza consultas separadas cargando las relaciones en una sola query
@@ -116,6 +118,7 @@ def detalle(request, id):
             return redirect("peliculas:agregar", id=id)
 
 @login_required
+@permission_required("peliculas.add_resena", raise_exception=True)
 def agregar_resena(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)
     # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
@@ -155,7 +158,7 @@ def agregar_resena(request, id):
 
     return render(request, "peliculas/detalle_pelicula.html", contexto)
 
-@login_required # El usuario debe estar autenticado sí o sí 
+@permission_required("peliculas.change_resena", raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def editar_resenas(request, pk):
     #obtenemos la reseña asegurando que pertenezca al usuario logueado
@@ -189,7 +192,8 @@ def editar_resenas(request, pk):
     return render(request, "peliculas/detalle_pelicula.html", contexto)
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@permission_required("peliculas.delete_resena", raise_exception=True)
+@require_POST
 def eliminar_resena(request, pk):
 
     # Solo se elimina la reseña cuando se recibe una petición POST.
