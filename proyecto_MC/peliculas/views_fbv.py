@@ -119,7 +119,12 @@ def detalle(request, id):
 
 @login_required
 @permission_required("peliculas.add_resena", raise_exception=True)
+@require_http_methods(["GET", "POST"])
 def agregar_resena(request, id):
+     
+    if request.method == "GET":
+         return redirect("peliculas:detalle", id=id)
+    
     pelicula = get_object_or_404(Pelicula, id=id)
     # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
     # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
@@ -158,6 +163,8 @@ def agregar_resena(request, id):
 
     return render(request, "peliculas/detalle_pelicula.html", contexto)
 
+
+@login_required
 @permission_required("peliculas.change_resena", raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def editar_resenas(request, pk):

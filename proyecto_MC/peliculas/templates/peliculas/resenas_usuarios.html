@@ -26,9 +26,9 @@
             <div class="botonera">
 
                 <!-- Lo ve todo el mundo -->
-                <button class="btn">
+                <!-- <button class="btn">
                     Reportes {{ resena.reportes }}
-                </button>
+                </button>-->
 
                 <!-- SOLO lo ve el autor de la reseña -->
                 {% if resena.autor_id == user.id %}
@@ -59,9 +59,9 @@
                     {{ resena.comentarios_count }} Comentarios
                 </a>
 
-                <button class="btn">
+                <!--<button class="btn">
                     Ocultar
-                </button>
+                </button> -->
 
             </div>
 

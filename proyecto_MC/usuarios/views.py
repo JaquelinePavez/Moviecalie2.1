@@ -4,6 +4,12 @@ from django.contrib import messages
 from .forms import RegistroForm 
 from django.contrib.auth.models import Group
 
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.views import redirect_to_login
+from django.views.decorators.http import require_http_methods, require_POST
+
+
+@require_http_methods(["GET", "POST"])
 def registro_usuario(request):
 
     if request.method == "GET":
@@ -17,6 +23,7 @@ def registro_usuario(request):
             usuario = formulario.save()
             #el que decide el rol es el servidor, no el formulario, así nadie puede elegirse privilegios.
             grupo, _ = Group.objects.get_or_create(name="Criticos")
+
             usuario.groups.add(grupo)
             messages.success(request, "Cuenta creada. Ya podés iniciar sesión.")
             return redirect("usuarios:login")
