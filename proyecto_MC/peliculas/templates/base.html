@@ -27,6 +27,7 @@
                 <form method="post" action="{% url 'usuarios:logout' %}" class="form-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn">Cerrar sesión</button>
+                    <a href="{% url 'usuarios:cambiar_contrasena' %}">Cambiar contraseña</a>
                 </form>
             {% else %}
                 {% if request.resolver_match.view_name != 'usuarios:login' %} <!--con request.resolver_match.view_name sabe en que pagina esta parado y devuelve el nombre de la url con el namespace-->
@@ -35,6 +36,7 @@
                 {% endif %}
                 {% if request.resolver_match.view_name != 'usuarios:registro' %}
                     <a href="{% url 'usuarios:registro' %}" class="btn">Registrarse</a>
+                    <a href="{% url 'usuarios:recuperar_contrasena' %}">¿Olvidaste tu contraseña?</a>
                 {% endif %}
             {% endif %}
         </nav>
@@ -42,6 +44,12 @@
 
 
     <main>
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
         {% block content %}
         {% endblock %}
     </main>
