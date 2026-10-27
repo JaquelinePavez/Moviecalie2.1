@@ -1,9 +1,10 @@
-Hola.
+{% autoescape off %}
+Hola {{ user.username }},
 
-Recibimos una solicitud para cambiar la contraseña de tu cuenta de MovieCali.
-
-Para elegir una contraseña nueva, ingresá al siguiente enlace:
-
+Para elegir una contrasena nueva, ingresa aca:
 {{ protocol }}://{{ domain }}{% url 'usuarios:confirmar_nueva_contrasena' uidb64=uid token=token %}
 
-Si no solicitaste este cambio, podés ignorar este mensaje.
+Si no fuiste vos, ignora este mensaje.
+
+MovieCali
+{% endautoescape %}

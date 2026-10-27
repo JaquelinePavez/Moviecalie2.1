@@ -140,9 +140,19 @@ LOGOUT_REDIRECT_URL = "usuarios:login" #después de cerrar sesión, MovieCali vu
 # esto lo saque de aca :
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
+#===============================Antiguo==================================
 # Solo para desarrollo local.
 # Muestra los correos en la terminal en lugar de enviarlos.
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#========================================================================
+#==============================Corregido=================================
+# Usamos el backend que creamos para mostrar los correos
+# de recuperación en la consola de forma más clara,
+# evitando que los enlaces se corten en varias líneas.
+# Esto se usa durante el desarrollo, ya que para enviar
+# correos reales necesitamos configurar un servidor SMTP.
+EMAIL_BACKEND = "usuarios.email_backend.EmailBackend"
+#========================================================================
 DEFAULT_FROM_EMAIL = "nombre@moviecali.local"
 
 
