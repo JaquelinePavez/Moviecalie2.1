@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.http import require_http_methods, require_POST
 
+@require_http_methods(["GET"])
 def catalogo_peliculas(request):
     # Optimiza consultas separadas cargando las relaciones en una sola query
     queryset = Pelicula.objects.prefetch_related('generos', 'actores', 'directores').all()
@@ -90,6 +91,7 @@ def catalogo_peliculas(request):
     }
     return render(request, 'peliculas/catalogo.html', context)
 
+@require_http_methods(["GET"])
 def detalle(request, id):
     pelicula = get_object_or_404(Pelicula, id=id)  # si un id de una pelicula no se encuentra, devuelve 404
     # ANTES: promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]  # calcula un valor resumen del promedio de todas las resenas de una pelicula

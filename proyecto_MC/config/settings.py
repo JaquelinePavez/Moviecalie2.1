@@ -49,10 +49,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    'django.contrib.sessions.middleware.SessionMiddleware', # <-- Debe ir primero
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware", #verifica que el token que recibe por formulario sea igual al que guardo en la cookie del usuario
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # <-- Debe ir después
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas establece un largo
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es-ar"
 
 TIME_ZONE = "UTC"
 
