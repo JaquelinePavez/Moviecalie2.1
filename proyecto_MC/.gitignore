@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 db.sqlite3
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example

@@ -1,6 +1,9 @@
 from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
 
+#Esto permite configurar los roles automáticamente, 
+# sin tener que cargar todos los permisos manualmente desde el administrador 
+# cada vez que se prepara una base de datos nueva.
 class Command(BaseCommand):
     help = "Crea los grupos y les asigna permisos"
 
