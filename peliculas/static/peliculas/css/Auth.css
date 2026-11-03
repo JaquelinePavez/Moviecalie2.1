@@ -1,0 +1,32 @@
+.auth-formulario {
+    max-width: 360px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-formulario label {
+    font-size: 14px;
+}
+
+.auth-formulario input {
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+}
+
+.auth-error {
+    color: #ff8080;
+    font-size: 14px;
+    margin: 0;
+}
+
+.auth-enlace {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.auth-enlace a {
+    color: #9cc8ff;
+}

@@ -1,0 +1,100 @@
+.titulo-catalogo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.filtros-catalogo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.campo-filtro {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+}
+
+.campo-filtro label {
+    font-size: 13px;
+}
+
+.campo-filtro input,
+.campo-filtro select {
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+}
+
+.campo-filtro-rango {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.campo-filtro-rango input {
+    width: 90px;
+}
+
+.acciones-filtro {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.grid-peliculas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.tarjeta-pelicula {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.tarjeta-pelicula img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+}
+
+.tarjeta-pelicula-cuerpo {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tarjeta-pelicula-meta {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.tarjeta-pelicula-sinopsis {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.badge {
+    display: inline-block;
+    background: #2a4f7a;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin: 2px 4px 2px 0;
+}
+
+.sin-resultados {
+    text-align: center;
+    opacity: 0.8;
+    grid-column: 1 / -1;
+}

@@ -1,0 +1,76 @@
+<!-- ========================================= -->
+<!-- LISTADO DE RESEÑAS DE USUARIOS            -->
+<!-- ========================================= -->
+
+<h2>Reseñas de usuarios:</h2>
+
+<section class="contenedor-aside">
+
+    {% for resena in resenas %}
+
+        <div class="item-aside">
+
+            <p>
+                <b>Calificación:</b>
+                {{ resena.calificacion }} / 10   <!-- Aca habia 5 lo cambie a 10 -->
+            </p>
+
+            <p class="resena-autor">
+                {{ resena.autor.username }} dice:
+            </p>
+
+            <p class="resena-texto">
+                "{{ resena.texto }}"
+            </p>
+
+            <div class="botonera">
+
+                <!-- Lo ve todo el mundo -->
+                <!-- <button class="btn">
+                    Reportes {{ resena.reportes }}
+                </button>-->
+
+                <!-- SOLO lo ve el autor de la reseña -->
+                {% if resena.autor_id == user.id %}
+
+                    <a
+                        href="{% url 'peliculas:editar_resenas' resena.pk %}"
+                        class="btn"
+                    >
+                        Editar
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{% url 'peliculas:eliminar_resena' resena.pk %}"
+                        onsubmit="return confirm('¿Estás segura de que querés eliminar esta reseña?');"
+                        style="display:inline;"
+                    >
+                        {% csrf_token %}
+                        <button type="submit" class="btn">
+                            Eliminar
+                        </button>
+                    </form>
+
+                {% endif %}
+
+                <!-- Lo ve todo el mundo -->
+                <a class="btn">
+                    {{ resena.comentarios_count }} Comentarios
+                </a>
+
+                <!--<button class="btn">
+                    Ocultar
+                </button> -->
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <p>No hay reseñas publicadas para esta película. ¡Sé el primero en opinar!</p>
+
+    {% endfor %}
+
+</section>

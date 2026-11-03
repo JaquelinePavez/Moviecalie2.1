@@ -1,0 +1,10 @@
+{% autoescape off %}
+Hola {{ user.username }},
+
+Para elegir una contrasena nueva, ingresa aca:
+{{ protocol }}://{{ domain }}{% url 'usuarios:confirmar_nueva_contrasena' uidb64=uid token=token %}
+
+Si no fuiste vos, ignora este mensaje.
+
+MovieCali
+{% endautoescape %}
