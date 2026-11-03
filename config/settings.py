@@ -112,7 +112,8 @@ AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas establece un largo
 
 LANGUAGE_CODE = "es-ar"
 
-TIME_ZONE = "UTC-3" #actualice -3 para argentina
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
+
 
 USE_I18N = True
 
