@@ -36,8 +36,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
     "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
+    "django.contrib.auth",#aportan las tablas a la base de datos
+    "django.contrib.contenttypes",#como auth_user, auth_group, auth_permisos
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas establece un largo
 
 LANGUAGE_CODE = "es-ar"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "UTC-3" #actualice -3 para argentina
 
 USE_I18N = True
 
@@ -134,7 +134,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'usuarios:login' #si alguien intenta entrar a una pagina protegida sin estar logueado, mandalo para acá
 AUTH_USER_MODEL = "usuarios.Usuario" 
 LOGIN_REDIRECT_URL = 'inicio' #si alguien se loguea desde la pantalla de login directamente (sin venir de una página protegida), mandalo para acá al terminar
-LOGOUT_REDIRECT_URL = "usuarios:login" #después de cerrar sesión, MovieCali vuelve al inicio de sesión.
+#comente logout porque en usuarios/urls.py se pisa con next_page
+#LOGOUT_REDIRECT_URL = "usuarios:login" #después de cerrar sesión, MovieCali vuelve al inicio de sesión.
 # esto lo saque de aca :
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

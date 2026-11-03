@@ -4,7 +4,7 @@ from .models import Resena
 
 class ResenaForm(forms.ModelForm):#USAMOS MODEL FORMS PARA QUE LAS VALIDACIONES 
 #LAS HAGA EN CONJUNTO CON EL MODELO
-    calificacion = forms.DecimalField( min_value=1, max_value=10, max_digits=3, decimal_places=1,)
+    calificacion = forms.DecimalField( min_value=0.1, max_value=10, max_digits=3, decimal_places=1,)
     
     class Meta:
         model = Resena 
