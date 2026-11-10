@@ -1,17 +1,23 @@
-from .models import Pelicula, Genero, Actor, Director, Resena #importa desde el modulo models
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ValidationError
-from django.db.models import Q, Avg  # agregamos Avg
-from django.db.models.deletion import ProtectedError
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.db import transaction
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
+
 from .forms import ResenaForm
-from .models import Pelicula, Resena
-from django.views.decorators.http import require_http_methods
+from .models import (
+    Pelicula,
+    Resena,
+)
+
 
 # Mixin: pide sesión y limita el conjunto a las reseñas del usuario
 class ResenasPropiasMixin(LoginRequiredMixin):

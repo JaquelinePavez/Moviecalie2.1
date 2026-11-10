@@ -23,6 +23,8 @@ python manage.py runserver
 Abajo a la derecha les va a aparecer un cartel flotante de VS Code que dice "Open in Browser" (Abrir en el navegador). 
 Hagan clic ahí.Se va a abrir una pestaña nueva donde van a poder ver y probar la página web (HTML/CSS/Django) en tiempo real.
 
+*UTILIZACIÓN DE LA EXTENCIÓN RUFF PARA IMPLEMENTANCION DE LOS PEP 8.*
+
 
 🛠️ CÓMO TRABAJAR EN EQUIPO TODOS LOS DÍAS 
 (Comandos Git)

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from peliculas.models import Pelicula # Importe la lista de películas que definimos
+from peliculas.models import Pelicula
 
 
 def inicio(request):
@@ -11,5 +11,6 @@ def inicio(request):
     return render(request, "inicio.html", contexto)
 
 
-
+"""Intención de mudar el inicio de la pagina al catalogo para una mejor visualización
+debido que ambas paginas realizan lo mismo."""
 
