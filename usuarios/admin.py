@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
-from .models import Usuario, Perfil
+
+from .models import Perfil, Usuario
+
 
 # Formulario de alta que usa el admin (pantalla "Añadir usuario").
 class UsuarioCreacionForm(UserCreationForm):

@@ -1,0 +1,10 @@
+# Configuración de Ruff para MovieCali (Unidad 6: PEP 8 y unificación del código)
+[tool.ruff]
+# Largo máximo de línea recomendado por PEP 8
+line-length = 79
+# Las migraciones las genera Django; no se revisan ni se formatean
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+# E/W: estilo PEP 8 | F: errores lógicos | I: orden de imports
+select = ["E", "W", "F", "I"]

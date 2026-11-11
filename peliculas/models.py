@@ -1,7 +1,10 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator #controla extensiones de archivos
-from django.db import models #me da las herramientas para crear los modelos
-from django.conf import settings #para reseñas.autor
+from django.core.validators import (
+    FileExtensionValidator,  #controla extensiones de archivos
+)
+from django.db import models  #me da las herramientas para crear los modelos
+
 #from django.contrib.auth.models import User
 #me ayuda a construir condiciones
 from django.db.models import Q
@@ -21,12 +24,7 @@ class Actor(models.Model):
         verbose_name_plural = "Actores"
         constraints = [
             models.UniqueConstraint(
-                fields=[
-                    "nombre",
-                    "apellido",
-                    "nacionalidad",
-                    "anio_de_nacimiento"
-                ],
+                fields=[ "nombre","apellido","nacionalidad","anio_de_nacimiento"],
                 name="actor_unico"
             )
         ]

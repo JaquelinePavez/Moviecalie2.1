@@ -130,9 +130,6 @@ STATIC_URL = "static/"
 # Configuración de Archivos Multimedia (Subidos por usuarios)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
-
 LOGIN_URL = 'usuarios:login' #si alguien intenta entrar a una pagina protegida sin estar logueado, mandalo para acá
 AUTH_USER_MODEL = "usuarios.Usuario" 
 LOGIN_REDIRECT_URL = 'inicio' #si alguien se loguea desde la pantalla de login directamente (sin venir de una página protegida), mandalo para acá al terminar

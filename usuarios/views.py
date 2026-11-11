@@ -1,12 +1,9 @@
-#from django.contrib.auth import login
-from django.shortcuts import redirect, render
 from django.contrib import messages
-from .forms import RegistroForm 
 from django.contrib.auth.models import Group
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
 
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.views import redirect_to_login
-from django.views.decorators.http import require_http_methods, require_POST
+from .forms import RegistroForm
 
 
 @require_http_methods(["GET", "POST"])

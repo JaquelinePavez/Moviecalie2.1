@@ -1,11 +1,11 @@
 from django.urls import path
-from . import views_cbv
-from . import views_fbv
+
+from . import views_cbv, views_fbv
 
 app_name = "peliculas"
 
 urlpatterns = [ 
-        #vistas basadas en funciones
+    #vistas basadas en funciones
     path("<int:pk>/editar/", views_fbv.editar_resenas, name="editar_resenas"),
     path("<int:pk>/resenas/eliminar/", views_fbv.eliminar_resena, name="eliminar_resena"),
     path("<int:id>/resenas/agregar/", views_fbv.agregar_resena, name="agregar"),

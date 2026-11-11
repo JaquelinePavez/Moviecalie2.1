@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Pelicula, Actor, Director, Genero, Resena
+
+from .models import Actor, Director, Genero, Pelicula, Resena
 
 # Catálogo: datos compartidos, admin común.
 admin.site.register(Pelicula)

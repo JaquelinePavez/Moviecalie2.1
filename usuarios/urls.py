@@ -1,6 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import views as vistas_autenticacion
 from django.urls import path, reverse_lazy
+
 from . import views
 
 app_name = "usuarios"

@@ -1,7 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
-from django.conf import settings
 from django.db import models
 
 
