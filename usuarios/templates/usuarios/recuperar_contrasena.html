@@ -1,14 +1,15 @@
-
 {% extends "base.html" %}
 
+{% block title %}Recuperar contraseña{% endblock %}
+
 {% block content %}
-<h1>Recuperar contraseña</h1>
-
-<p>Ingresá tu correo para solicitar la recuperación de tu cuenta.</p>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Solicitar recuperación</button>
-</form>
+    <section class="auth-formulario">
+        <h1>Recuperar contraseña</h1>
+        <p>Ingresá tu correo para solicitar la recuperación de tu cuenta.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Solicitar recuperación</button>
+        </form>
+    </section>
 {% endblock %}

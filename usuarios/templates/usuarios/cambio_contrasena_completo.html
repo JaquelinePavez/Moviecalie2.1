@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
+{% block title %}Contraseña cambiada{% endblock %}
+
 {% block content %}
-<h1>Contraseña cambiada</h1>
-
-<p>Tu contraseña se actualizó correctamente.</p>
-
-<a href="{% url 'peliculas:catalogo' %}">Volver al catálogo</a>
+    <section class="auth-formulario">
+        <h1>Contraseña cambiada</h1>
+        <p>Tu contraseña se actualizó correctamente.</p>
+        <a href="{% url 'peliculas:catalogo' %}" class="btn">
+            Volver al catálogo
+        </a>
+    </section>
 {% endblock %}

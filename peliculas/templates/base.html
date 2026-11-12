@@ -1,61 +1,98 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>
-        {% block title %}
-            {{ titulo_pagina }}
-        {% endblock %}
-    </title>
-    <link rel="stylesheet" href="{% static 'peliculas/css/body.css' %}">
-    <link rel="stylesheet" href="{% static 'peliculas/css/headerBoostrap.css' %}">
-    
-    {% block extra_css %}{% endblock %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            {% block title %}
+                {{ titulo_pagina|default:"MovieCali" }}
+            {% endblock %}
+        </title>
+        <link
+            rel="stylesheet"
+            href="{% static 'peliculas/css/body.css' %}?v=20261112-3"
+        >
+        <link
+            rel="stylesheet"
+            href="{% static 'peliculas/css/headerBoostrap.css' %}?v=20261112-3"
+        >
+        <link
+            rel="stylesheet"
+            href="{% static 'peliculas/css/footer.css' %}?v=20261112-3"
+        >
+        <link
+            rel="stylesheet"
+            href="{% static 'peliculas/css/catalogo.css' %}?v=20261112-4"
+        >
+        <link
+            rel="stylesheet"
+            href="{% static 'peliculas/css/Auth.css' %}?v=20261112-3"
+        >
+        {% block extra_css %}{% endblock %}
+    </head>
+    <body>
+        <header class="perfil">
+            <h1>MovieCali</h1>
+            {% block navegacion %}
+                {% include "componentes/navegacion.html" %}
+            {% endblock %}
+            {% with vista=request.resolver_match.view_name %}
+                <nav aria-label="Cuenta de usuario">
+                    {% if user.is_authenticated %}
+                        <span>Hola, {{ user.username }}</span>
+                        <form
+                            method="post"
+                            action="{% url 'usuarios:logout' %}"
+                            class="form-inline"
+                        >
+                            {% csrf_token %}
+                            <button type="submit" class="btn">
+                                Cerrar sesión
+                            </button>
+                        </form>
+                        <a
+                            href="{% url 'usuarios:cambiar_contrasena' %}"
+                            class="btn"
+                        >
+                            Cambiar contraseña
+                        </a>
+                    {% else %}
+                        {% if vista != 'usuarios:login' %}
+                            <a href="{% url 'usuarios:login' %}" class="btn">
+                                Iniciar sesión
+                            </a>
+                        {% endif %}
+                        {% if vista != 'usuarios:registro' %}
+                            <a
+                                href="{% url 'usuarios:registro' %}"
+                                class="btn"
+                            >
+                                Registrarse
+                            </a>
+                        {% endif %}
+                        <a
+                            href="{% url 'usuarios:recuperar_contrasena' %}"
+                            class="btn enlace-cuenta"
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endwith %}
+        </header>
 
-</head>
-<body>
-    <header class="perfil">
-
-        <h1>MovieCali</h1>
-        {% block navegacion %}
-            {% include "componentes/navegacion.html" %}
-        {% endblock %}
-        <nav>
-            {% if user.is_authenticated %} <!--verifica si esta logueado-->
-                <span>Hola, {{ user.username }}</span>
-                <form method="post" action="{% url 'usuarios:logout' %}" class="form-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn">Cerrar sesión</button>
-                    <a href="{% url 'usuarios:cambiar_contrasena' %}">Cambiar contraseña</a>
-                </form>
-            {% else %}
-                {% if request.resolver_match.view_name != 'usuarios:login' %} <!--con request.resolver_match.view_name sabe en que pagina esta parado y devuelve el nombre de la url con el namespace-->
-                <!--con el namespace puede verificar si es igual a usuarios:login no lo muestra-->   
-                    <a href="{% url 'usuarios:login' %}" class="btn">Iniciar sesión</a>
-                {% endif %}
-                {% if request.resolver_match.view_name != 'usuarios:registro' %}
-                    <a href="{% url 'usuarios:registro' %}" class="btn">Registrarse</a>
-                    <a href="{% url 'usuarios:recuperar_contrasena' %}">¿Olvidaste tu contraseña?</a>
-                {% endif %}
+        <main>
+            {% if messages %}
+                <div class="mensajes" role="status">
+                    {% for message in messages %}
+                        <p class="mensaje {{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
             {% endif %}
-        </nav>
-    </header>
+            {% block content %}{% endblock %}
+        </main>
 
-
-    <main>
-        {% if messages %}
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-
-        {% block content %}
-        {% endblock %}
-    </main>
-
-        
-    {% include "componentes/footer.html" %}
-
-</body>
+        {% include "componentes/footer.html" %}
+    </body>
 </html>

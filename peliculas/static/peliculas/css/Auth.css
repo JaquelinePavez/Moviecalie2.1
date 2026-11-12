@@ -1,9 +1,31 @@
 .auth-formulario {
-    max-width: 360px;
+    width: 100%;
+    max-width: 420px;
     margin: 40px auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding: 24px;
+    border: 1px solid rgba(156, 200, 255, 0.25);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow-wrap: anywhere;
+}
+
+.auth-formulario h1 {
+    margin: 0 0 12px;
+    font-size: 26px;
+}
+
+.auth-formulario form,
+.auth-formulario form p {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-formulario form p {
+    margin: 0 0 6px;
 }
 
 .auth-formulario label {
@@ -11,20 +33,56 @@
 }
 
 .auth-formulario input {
+    width: 100%;
+    min-width: 0;
     padding: 8px;
     border-radius: 6px;
     border: none;
+    font: inherit;
+    background: #f2f6fc;
+    color: #17283d;
 }
 
-.auth-error {
+.auth-error,
+.auth-formulario .errorlist {
     color: #ff8080;
     font-size: 14px;
     margin: 0;
 }
 
+.auth-formulario .errorlist {
+    padding-left: 20px;
+}
+
+.auth-formulario .helptext {
+    color: #c9d9ee;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.auth-formulario .helptext ul {
+    padding-left: 20px;
+}
+
+.auth-formulario .btn {
+    margin-top: 8px;
+}
+
 .auth-enlace {
     margin-top: 16px;
     font-size: 14px;
+    line-height: 1.6;
+}
+
+.auth-enlace a {
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    .auth-formulario {
+        margin: 20px auto;
+        padding: 20px;
+    }
 }
 
 .auth-enlace a {

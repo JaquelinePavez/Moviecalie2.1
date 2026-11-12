@@ -5,6 +5,35 @@ body {
     font-family: Arial, sans-serif;
     color: white;
 }
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+a {
+    color: #9cc8ff;
+}
+
+a:visited {
+    color: #9cc8ff;
+}
+
+a:hover {
+    color: #c9e2ff;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+    outline: 3px solid #9cc8ff;
+    outline-offset: 3px;
+}
+
 .btn {
     background: #2a4f7a;
     color: white;
@@ -14,8 +43,37 @@ body {
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
+    font: inherit;
+    text-align: center;
 }
-.btn:hover { background: #3a6fa0; }
+
+.btn:visited {
+    color: white;
+}
+
+.btn:hover {
+    background: #3a6fa0;
+    color: white;
+}
+
+.form-inline {
+    display: inline-flex;
+    margin: 0;
+}
+
+.mensaje {
+    padding: 14px 18px;
+    border: 1px solid #9cc8ff;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow-wrap: anywhere;
+}
+
+.mensaje.error,
+.mensaje.warning {
+    border-color: #ff8080;
+}
+
 main {
     display: flex;
     flex-direction: column;
@@ -23,4 +81,10 @@ main {
     box-sizing: border-box;
     min-height: calc(100vh - 160px);
     margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+    main {
+        padding: 20px 16px;
+    }
 }

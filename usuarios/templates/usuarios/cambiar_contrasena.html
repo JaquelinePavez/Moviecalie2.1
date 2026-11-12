@@ -1,12 +1,14 @@
-
 {% extends "base.html" %}
 
-{% block content %}
-<h1>Cambiar contraseña</h1>
+{% block title %}Cambiar contraseña{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Cambiar contraseña</button>
-</form>
+{% block content %}
+    <section class="auth-formulario">
+        <h1>Cambiar contraseña</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Cambiar contraseña</button>
+        </form>
+    </section>
 {% endblock %}
