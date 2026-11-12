@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+RECURSOS_DIR = BASE_DIR.parent
 
 # Carga las variables del archivo .env, si existe.
 # No reemplaza las variables que ya estén definidas en el entorno.
@@ -60,7 +61,11 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],# Le indica a Django buscar en la raíz
+        "DIRS": [
+            RECURSOS_DIR / "templates",
+            RECURSOS_DIR / "peliculas" / "templates",
+            RECURSOS_DIR / "usuarios" / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -123,6 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [RECURSOS_DIR / "peliculas" / "static"]
 
 
 # Configuración de Archivos Multimedia (Subidos por usuarios)

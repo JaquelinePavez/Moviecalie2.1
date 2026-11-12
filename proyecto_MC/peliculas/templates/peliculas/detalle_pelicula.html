@@ -5,86 +5,78 @@
     {{ pelicula.titulo }} - Detalle
 {% endblock %}
 
-{% block navegacion %}
-    {% include "componentes/navegacion.html" %}
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'peliculas/css/catalogo.css' %}"
+    >
 {% endblock %}
 
 {% block content %}
     {% if pelicula %}
 
-        <!-- ========================================= -->
-        <!-- INFORMACIÓN DETALLADA DE LA PELÍCULA     -->
-        <!-- ========================================= -->
-
-        <div class="cabecera-pelicula" style="display:flex; gap:20px; align-items:flex-start;">
+        <div class="cabecera-pelicula">
 
             {% if pelicula.imagen_portada %}
                 <img
                     src="{{ pelicula.imagen_portada.url }}"
-                    width="400"
-                    style="border-radius:10px;"
+                    class="portada-detalle"
                     alt="{{ pelicula.titulo }}"
                 >
             {% endif %}
 
             <div class="info-pelicula">
-
-                <!-- Título -->
                 <h1 class="titulo-principal">
                     {{ pelicula.titulo }}
                 </h1>
-
-                <!-- Calificación -->
                 <h2>Calificación promedio:</h2>
-                <p>⭐ 
+                <p>⭐
                     {% if promedio_resenas %}
-                        {{ promedio_resenas|floatformat:1 }} / 10 <!-- Aca habia 5 lo cambie a 10 -->
+                        {{ promedio_resenas|floatformat:1 }} / 10
                     {% else %}
                         Sin calificaciones aún
                     {% endif %}
                 </p>
-
-                <!-- Sinopsis -->
                 <h2>Sinopsis:</h2>
                 <p>{{ pelicula.sinopsis }}</p>
-
-                <!-- Duración -->
-                <p><strong>Duración:</strong> {{ pelicula.duracion_minutos }} minutos</p>
-
-                <!-- Fecha de estreno -->
-                <p><strong>Fecha de estreno:</strong> {{ pelicula.fecha_estreno|date:"d/m/Y" }}</p>
-
-                <!-- Clasificación -->
-                <p><strong>Clasificación:</strong> {{ pelicula.get_clasificacion_display }}</p>
-
-                <!-- Actores -->
+                <p>
+                    <strong>Duración:</strong>
+                    {{ pelicula.duracion_minutos }} minutos
+                </p>
+                <p>
+                    <strong>Fecha de estreno:</strong>
+                    {{ pelicula.fecha_estreno|date:"d/m/Y" }}
+                </p>
+                <p>
+                    <strong>Clasificación:</strong>
+                    {{ pelicula.get_clasificacion_display }}
+                </p>
                 <p><strong>Actores:</strong>
                     {% for actor in pelicula.actores.all %}
-                        {{ actor.nombre }} {{ actor.apellido }}{% if not forloop.last %}, {% endif %}
+                        {{ actor.nombre }}
+                        {{ actor.apellido }}{% if not forloop.last %},
+                        {% endif %}
                     {% empty %}
                         No hay actores cargados.
                     {% endfor %}
                 </p>
-
-                <!-- Directores -->
                 <p><strong>Directores:</strong>
                     {% for director in pelicula.directores.all %}
-                        {{ director.nombre }} {{ director.apellido }}{% if not forloop.last %}, {% endif %}
+                        {{ director.nombre }}
+                        {{ director.apellido }}{% if not forloop.last %},
+                        {% endif %}
                     {% empty %}
                         No hay directores cargados.
                     {% endfor %}
                 </p>
-
-                <!-- Géneros -->
                 <p><strong>Géneros:</strong>
                     {% for genero in pelicula.generos.all %}
-                        {{ genero.nombre }}{% if not forloop.last %}, {% endif %}
+                        {{ genero.nombre }}{% if not forloop.last %},
+                        {% endif %}
                     {% empty %}
                         No hay géneros cargados.
                     {% endfor %}
                 </p>
-
-                <!-- Trailer -->
                 {% if pelicula.trailer_embed_url %}
                     <div class="trailer">
                         <h2>Tráiler</h2>
@@ -93,10 +85,12 @@
                             title="Tráiler de {{ pelicula.titulo }}"
                             width="800"
                             height="450"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allow="accelerometer; autoplay; clipboard-write;
+                                encrypted-media; gyroscope;
+                                picture-in-picture; web-share"
                             referrerpolicy="strict-origin-when-cross-origin"
-                            allowfullscreen>
+                            allowfullscreen
+                        >
                         </iframe>
                     </div>
                 {% endif %}
@@ -104,16 +98,8 @@
             </div>
         </div>
 
-        <hr style="margin: 30px 0;">
-
-        <!-- ========================================= -->
-        <!-- AGREGAR RESEÑA        -->
-        <!-- ========================================= -->
+        <hr class="separador-detalle">
         {% include "componentes/form_resena.html" %}
-
-        <!-- ========================================= -->
-        <!-- RESEÑAS DE USUARIOS      -->
-        <!-- ========================================= -->
         {% include "peliculas/resenas_usuarios.html" %}
 
     {% else %}
