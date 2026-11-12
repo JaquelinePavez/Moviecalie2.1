@@ -16,7 +16,8 @@ from .models import (
 
 @require_http_methods(["GET"])
 def catalogo_peliculas(request):
-    queryset = Pelicula.objects.prefetch_related('generos', 'actores', 'directores')
+    queryset = Pelicula.objects.prefetch_related(
+        'generos', 'actores', 'directores')
     form = FiltroPeliculaForm(request.GET)
 
     if form.is_valid():
