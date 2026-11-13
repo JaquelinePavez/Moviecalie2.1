@@ -36,3 +36,36 @@ class PeliculaYResenaTests(TestCase):
         resena = Resena(texto="palabra " * 501)
         with self.assertRaises(ValidationError):
             resena.clean()
+
+
+class TrailerPeliculaTests(TestCase):
+    def test_convierte_enlace_de_youtube_a_formato_embed(self):
+        pelicula = Pelicula(
+            url_trailer="https://www.youtube.com/watch?v=abc123",
+        )
+        self.assertEqual(
+            pelicula.trailer_embed_url,
+            "https://www.youtube.com/embed/abc123",
+        )
+
+    def test_convierte_enlace_corto_de_youtube_a_formato_embed(self):
+        pelicula = Pelicula(
+            url_trailer="https://youtu.be/abc123",
+        )
+        self.assertEqual(
+            pelicula.trailer_embed_url,
+            "https://www.youtube.com/embed/abc123",
+        )
+
+    def test_devuelve_none_si_no_hay_enlace_de_trailer(self):
+        pelicula = Pelicula(url_trailer="")
+        self.assertIsNone(pelicula.trailer_embed_url)
+
+    def test_conserva_enlace_que_ya_esta_en_formato_embed(self):
+        pelicula = Pelicula(
+            url_trailer="https://www.youtube.com/embed/abc123",
+        )
+        self.assertEqual(
+            pelicula.trailer_embed_url,
+            "https://www.youtube.com/embed/abc123",
+        )
