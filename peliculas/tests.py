@@ -1,6 +1,10 @@
+from datetime import date
+
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from .forms import FiltroPeliculaForm
+from .models import Pelicula, Resena
 
 
 class FiltroPeliculaFormTests(TestCase):
@@ -13,3 +17,22 @@ class FiltroPeliculaFormTests(TestCase):
             'El año "desde" no puede ser mayor que el año "hasta".',
             form.non_field_errors(),
         )
+
+
+class PeliculaYResenaTests(TestCase):
+
+    def test_muestra_titulo_y_anio_de_la_pelicula(self):
+        pelicula = Pelicula(
+            titulo="Titanic",
+            fecha_estreno=date(1997, 12, 19),
+        )
+        self.assertEqual(str(pelicula), "Titanic (1997)")
+
+    def test_acepta_resena_de_dos_palabras(self):
+        resena = Resena(texto="Muy buena")
+        resena.clean()
+
+    def test_rechaza_resena_de_mas_de_500_palabras(self):
+        resena = Resena(texto="palabra " * 501)
+        with self.assertRaises(ValidationError):
+            resena.clean()
