@@ -8,17 +8,21 @@ from .forms import RegistroForm
 
 @require_http_methods(["GET", "POST"])
 def registro_usuario(request):
+    """
+    Se encarga de registrar nuevos usuarios.
+    Muestra el formulario de registro, valida los datos ingresados
+    y, si todo está correcto, crea la cuenta y le asigna un grupo.
+    """
 
     if request.method == "GET":
-        formulario = RegistroForm()  # formulario vacío
+        formulario = RegistroForm()
         contexto = {"formulario": formulario}
         return render(request, "usuarios/registro.html", contexto)
 
     if request.method == "POST":
-        formulario = RegistroForm(request.POST)  # formulario con los datos enviados, para validarlos
+        formulario = RegistroForm(request.POST)
         if formulario.is_valid():
             usuario = formulario.save()
-            #el que decide el rol es el servidor, no el formulario, así nadie puede elegirse privilegios.
             grupo, _ = Group.objects.get_or_create(name="Criticos")
 
             usuario.groups.add(grupo)
@@ -27,5 +31,3 @@ def registro_usuario(request):
         else:
             contexto = {"formulario": formulario}
             return render(request, "usuarios/registro.html", contexto)
-
-        

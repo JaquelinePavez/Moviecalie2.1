@@ -1,23 +1,22 @@
 # Importamos el backend de consola que Django utiliza
 # para mostrar los correos electrónicos en la terminal.
-from django.core.mail.backends.console import EmailBackend as ConsoleEmailBackend
+import django.core.mail.backends.console
 
 
 # Creamos nuestro propio backend heredando del original de Django.
-class EmailBackend(ConsoleEmailBackend):
+class EmailBackend(django.core.mail.backends.console.EmailBackend):
 
-    # Sobrescribimos el método encargado de mostrar cada correo.
     def write_message(self, message):
+        """
+        Muestra el contenido del correo en la consola,
+        agrega una separación entre los correos y actualiza
+        la salida para que se vea todo inmediatamente.
+        """
 
-        # Obtenemos directamente el cuerpo del correo como texto,
-        # evitando la codificación MIME que divide los enlaces largos.
         texto = message.body
-
-        # Mostramos el contenido del correo en la consola.
         self.stream.write(texto)
 
-        # Agregamos una línea separadora para distinguir
-        # los diferentes correos enviados.
+        # línea separadora para distinguir los diferentes correos
         self.stream.write("\n" + "-" * 60 + "\n")
 
         # Forzamos que el contenido se muestre inmediatamente
