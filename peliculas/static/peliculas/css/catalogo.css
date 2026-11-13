@@ -105,10 +105,9 @@
 /* Inicio: comparte tarjetas y colores con el catálogo. */
 .catalogo-peliculas {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(0, 400px));
     gap: 28px;
     width: 100%;
-    max-width: 400px;
     margin: 0;
 }
 
