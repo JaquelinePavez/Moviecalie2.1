@@ -1,5 +1,3 @@
-# Importamos el backend de consola que Django utiliza
-# para mostrar los correos electrónicos en la terminal.
 import django.core.mail.backends.console
 
 
