@@ -6,7 +6,7 @@ def promedio_resenas(pelicula):
     promedio = pelicula.resenas.aggregate(
         Avg("calificacion")
     )["calificacion__avg"]
-    return promedio or 0
+    return promedio
 
 
 def contexto_resenas(pelicula, form, titulo_pagina, ya_comento):

@@ -25,10 +25,10 @@
                 </h1>
                 <h2>Calificación promedio:</h2>
                 <p>⭐
-                    {% if promedio_resenas %}
+                    {% if promedio_resenas is not None %}
                         {{ promedio_resenas|floatformat:1 }} / 10
                     {% else %}
-                        Sin calificaciones aún
+                        Sin calificacion aun
                     {% endif %}
                 </p>
                 <h2>Sinopsis:</h2>
