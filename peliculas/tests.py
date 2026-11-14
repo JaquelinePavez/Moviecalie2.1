@@ -1,6 +1,8 @@
 from datetime import date
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 
 from .forms import FiltroPeliculaForm
@@ -36,6 +38,34 @@ class PeliculaYResenaTests(TestCase):
         resena = Resena(texto="palabra " * 501)
         with self.assertRaises(ValidationError):
             resena.clean()
+
+
+class CalificacionPeliculaTests(TestCase):
+    def crear_pelicula(self, calificacion):
+        return Pelicula(
+            titulo=f"Película {calificacion}",
+            sinopsis="Una sinopsis de prueba.",
+            duracion_minutos=100,
+            fecha_estreno=date(2020, 1, 1),
+            imagen_portada="poster.jpg",
+            calificacion_promedio=calificacion,
+        )
+
+    def test_acepta_calificacion_cero(self):
+        self.crear_pelicula(Decimal("0.0")).save()
+
+    def test_acepta_calificacion_diez(self):
+        self.crear_pelicula(Decimal("10.0")).save()
+
+    def test_rechaza_calificacion_menor_que_cero(self):
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                self.crear_pelicula(Decimal("-0.1")).save()
+
+    def test_rechaza_calificacion_mayor_que_diez(self):
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                self.crear_pelicula(Decimal("10.1")).save()
 
 
 class TrailerPeliculaTests(TestCase):
