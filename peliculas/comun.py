@@ -1,9 +1,22 @@
+from django.db.models import Avg
 
-#diccionario común para las clases definidas en la vistas 
-contexto = {
-            "pelicula": pelicula,
-            "titulo_pagina": "Agregar reseña",
-            "resenas": pelicula.resenas.order_by("-id_resena"),
-            "promedio_resenas": promedio_resenas,
-            "form": form,
-        }
+
+def promedio_resenas(pelicula):
+    """Calcula el promedio de calificaciones de las reseñas de una película"""
+    promedio = pelicula.resenas.aggregate(
+        Avg("calificacion")
+    )["calificacion__avg"]
+    return promedio or 0
+
+
+def contexto_resenas(pelicula, form, titulo_pagina, ya_comento):
+    """Genera el contexto para las vistas de detalle,
+    agregar y editar reseñas"""
+    return {
+        "pelicula": pelicula,
+        "titulo_pagina": titulo_pagina,
+        "resenas": pelicula.resenas.order_by("-id_resena"),
+        "promedio_resenas": promedio_resenas(pelicula),
+        "form": form,
+        "ya_comento": ya_comento,
+    }

@@ -3,20 +3,23 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
 
+from .comun import contexto_resenas
 from .forms import FiltroPeliculaForm, ResenaForm
-from .models import (
-    Pelicula,
-    Resena,
-)
+from .models import Pelicula, Resena
 
 
 @require_http_methods(["GET"])
 def catalogo_peliculas(request):
-    queryset = Pelicula.objects.prefetch_related('generos', 'actores', 'directores')
+    """Renderiza el catálogo de películas con la
+    opción de filtrarlas según los criterios del formulario"""
+    queryset = (
+    Pelicula.objects.prefetch_related(
+        'generos', 'actores', 'directores'
+    )
+)
     form = FiltroPeliculaForm(request.GET)
 
     if form.is_valid():
@@ -30,44 +33,51 @@ def catalogo_peliculas(request):
     }
     return render(request, 'peliculas/catalogo.html', context)
 
+
 @require_http_methods(["GET"])
 def detalle(request, id):
-    pelicula = get_object_or_404(Pelicula, id=id)  
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0.1
+    """Renderiza la página de detalle de una película, incluyendo
+    sus reseñas y el formulario para agregar una nueva reseña si
+    el usuario está autenticado y no ha comentado aún."""
+    pelicula = get_object_or_404(Pelicula, id=id)
 
     ya_comento = False
     if request.user.is_authenticated:
-        ya_comento = Resena.objects.filter(pelicula=pelicula, autor=request.user).exists()
-    if request.method == "GET":  
-        form = ResenaForm() 
-        contexto = {
-            "pelicula": pelicula,
-            "titulo_pagina": "Agregar reseña",
-            "resenas": pelicula.resenas.order_by("-id_resena"),
-            "promedio_resenas": promedio_resenas,
-            "form": form,
-            "ya_comento": ya_comento
-        }
-
+        ya_comento = (
+            Resena.objects.filter(
+                pelicula=pelicula, autor=request.user
+            ).exists()
+        )
+    if request.method == "GET":
+        contexto = contexto_resenas(
+            pelicula,
+            ResenaForm(),
+            "Agregar reseña",
+            ya_comento,
+        )
         return render(request, "peliculas/detalle_pelicula.html", contexto)
-    else: 
+    else:
         if not request.user.is_authenticated:
             return redirect_to_login(request.get_full_path())
         else:
             return redirect("peliculas:agregar", id=id)
 
+
 @login_required
 @permission_required("peliculas.add_resena", raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def agregar_resena(request, id):
-     
+    """Permite a un usuario autenticado agregar una reseña a una película."""
     if request.method == "GET":
          return redirect("peliculas:detalle", id=id)
-    
+
     pelicula = get_object_or_404(Pelicula, id=id)
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0.1    
     form = ResenaForm(request.POST)
-    ya_tiene_resena = Resena.objects.filter(pelicula=pelicula, autor=request.user).exists()
+    ya_tiene_resena = (
+        Resena.objects.filter(
+            pelicula=pelicula, autor=request.user
+        ).exists()
+    )
 
     if ya_tiene_resena:
         form.add_error(None, "Ya has publicado una reseña para esta película.")
@@ -86,14 +96,12 @@ def agregar_resena(request, id):
             messages.success(request, "Tu reseña se publicó correctamente.")
             return redirect("peliculas:detalle", id=pelicula.id)
 
-    contexto = {
-        "pelicula": pelicula,
-        "resenas": pelicula.resenas.order_by("-id_resena"),
-        "promedio_resenas": promedio_resenas,
-        "form": form,
-        "titulo_pagina": "Agregar reseña",
-        "ya_comento": ya_tiene_resena,
-    }
+    contexto = contexto_resenas(
+        pelicula,
+        form,
+        "Agregar reseña",
+        ya_tiene_resena,
+    )
 
     return render(request, "peliculas/detalle_pelicula.html", contexto)
 
@@ -102,37 +110,35 @@ def agregar_resena(request, id):
 @permission_required("peliculas.change_resena", raise_exception=True)
 @require_http_methods(["GET", "POST"])
 def editar_resenas(request, pk):
+    """Permite a un usuario autenticado editar su reseña de una película."""
     resena = get_object_or_404(Resena, pk=pk, autor=request.user)
     pelicula = resena.pelicula
-    promedio_resenas = pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0.1    
-    resenas_listado = pelicula.resenas.order_by("-id_resena")
+
     if request.method == "POST":
         form = ResenaForm(request.POST, instance=resena)
         if form.is_valid():
             with transaction.atomic():
                 resena = form.save()
             messages.success(request, "La reseña se actualizó correctamente.")
-            
-            return redirect("peliculas:detalle", id=resena.pelicula.pk)
+        return redirect("peliculas:detalle", id=resena.pelicula.pk)
     else:
         form = ResenaForm(instance=resena)
-    
-    contexto = {
-        "form": form,
-        "titulo_pagina": "Editar reseña",
-        "resena": resena,
-        "pelicula": resena.pelicula, 
-        "resenas": resenas_listado,          
-        "promedio_resenas": promedio_resenas, 
-        "ya_comento": False,
-    }
-    
+
+    contexto = contexto_resenas(
+        pelicula,
+        form,
+        "Editar reseña",
+        False,
+    )
+    contexto["resena"] = resena
     return render(request, "peliculas/detalle_pelicula.html", contexto)
+
 
 @login_required
 @permission_required("peliculas.delete_resena", raise_exception=True)
 @require_POST
 def eliminar_resena(request, pk):
+    """Permite a un usuario autenticado eliminar su reseña de una película."""
     if request.method == "POST":
         resena = get_object_or_404(Resena, pk=pk, autor=request.user)
         pelicula_id = resena.pelicula_id
