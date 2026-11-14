@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo - CBV{% endblock %}
+
+{% block content %}
+    <h1 class="titulo-catalogo">Catálogo MovieCali</h1>
+
+    <form
+        method="get"
+        action="{% url 'peliculas:catalogo_cbv' %}"
+        class="filtros-catalogo"
+    >
+        {% if form.errors %}
+            <div class="errores-filtro">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+                {% for campo in form %}
+                    {% for error in campo.errors %}
+                        <p>{{ campo.label }}: {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="campo-filtro">
+            <label for="{{ form.q.id_for_label }}">Buscar por título</label>
+            {{ form.q }}
+        </div>
+        <div class="campo-filtro">
+            <label for="{{ form.genero.id_for_label }}">Género</label>
+            {{ form.genero }}
+        </div>
+        <div class="campo-filtro">
+            <label for="{{ form.clasificacion.id_for_label }}">
+                Clasificación
+            </label>
+            {{ form.clasificacion }}
+        </div>
+        <div class="campo-filtro">
+            <label for="{{ form.actor.id_for_label }}">Actor</label>
+            {{ form.actor }}
+        </div>
+        <div class="campo-filtro">
+            <label for="{{ form.director.id_for_label }}">Director</label>
+            {{ form.director }}
+        </div>
+        <div class="campo-filtro campo-filtro-rango">
+            <label for="{{ form.anio_desde.id_for_label }}">Año desde</label>
+            {{ form.anio_desde }}
+            <label for="{{ form.anio_hasta.id_for_label }}">Año hasta</label>
+            {{ form.anio_hasta }}
+        </div>
+        <div class="campo-filtro">
+            <label for="{{ form.min_calificacion.id_for_label }}">
+                Calificación mín.
+            </label>
+            {{ form.min_calificacion }}
+        </div>
+        <div class="campo-filtro">
+            <label for="{{ form.orden.id_for_label }}">Ordenar por</label>
+            {{ form.orden }}
+        </div>
+
+        <div class="acciones-filtro">
+            <a href="{% url 'peliculas:catalogo_cbv' %}" class="btn">
+                Limpiar filtros
+            </a>
+            <button type="submit" class="btn">Aplicar filtros</button>
+        </div>
+    </form>
+
+    <div class="grid-peliculas">
+        {% for pelicula in peliculas %}
+            <div class="tarjeta-pelicula">
+                {% if pelicula.imagen_portada %}
+                    <img
+                        src="{{ pelicula.imagen_portada.url }}"
+                        width="220"
+                        height="280"
+                        alt="{{ pelicula.titulo }}"
+                    >
+                {% endif %}
+                <div class="tarjeta-pelicula-cuerpo">
+                    <h3 class="titulo-pelicula">
+                        <a
+                            href="{% url 'peliculas:detalle_pelicula_cbv' pelicula.pk %}"
+                        >
+                            {{ pelicula.titulo }}
+                        </a>
+                    </h3>
+                    <p class="tarjeta-pelicula-meta">
+                        Estreno: {{ pelicula.fecha_estreno|date:"Y" }}
+                    </p>
+                    <p class="tarjeta-pelicula-badges">
+                        <span class="badge">
+                            ⭐ {{ pelicula.calificacion_promedio }} / 10
+                        </span>
+                        <span class="badge">
+                            {{ pelicula.get_clasificacion_display }}
+                        </span>
+                    </p>
+                    <p class="tarjeta-pelicula-sinopsis">
+                        {{ pelicula.sinopsis|truncatewords:15 }}
+                    </p>
+                    <div class="tarjeta-pelicula-generos">
+                        {% for genero in pelicula.generos.all %}
+                            <span class="badge">{{ genero.nombre }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="sin-resultados">
+                No se encontraron películas que coincidan con la búsqueda.
+            </p>
+        {% endfor %}
+    </div>
+{% endblock %}

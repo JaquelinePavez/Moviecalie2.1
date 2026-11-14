@@ -1,0 +1,42 @@
+<section class="resenas-usuarios" aria-labelledby="titulo-resenas">
+    <h2 id="titulo-resenas">Reseñas de usuarios</h2>
+    <div class="contenedor-aside">
+        {% for resena in resenas %}
+            <article class="item-aside">
+                <p>
+                    <strong>Calificación:</strong>
+                    {{ resena.calificacion }} / 10
+                </p>
+                <p class="resena-autor">{{ resena.autor.username }} dice:</p>
+                <p class="resena-texto">“{{ resena.texto }}”</p>
+                <div class="botonera">
+                    {% if resena.autor_id == user.id %}
+                        <a
+                            href="{% url 'peliculas:editar_resenas_cbv' resena.pk %}"
+                            class="btn"
+                        >
+                            Editar
+                        </a>
+                        <form
+                            method="post"
+                            action="{% url 'peliculas:eliminar_resena_cbv' resena.pk %}"
+                            class="form-inline"
+                            onsubmit="return confirm('¿Eliminar reseña?');"
+                        >
+                            {% csrf_token %}
+                            <button type="submit" class="btn">Eliminar</button>
+                        </form>
+                    {% endif %}
+                    <span class="badge">
+                        {{ resena.comentarios_count }} Comentarios
+                    </span>
+                </div>
+            </article>
+        {% empty %}
+            <p class="sin-resenas">
+                No hay reseñas publicadas para esta película.
+                ¡Sé el primero en opinar!
+            </p>
+        {% endfor %}
+    </div>
+</section>

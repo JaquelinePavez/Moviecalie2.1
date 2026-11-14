@@ -2,7 +2,10 @@
     {% if request.resolver_match.view_name != 'inicio' %}
         <a href="{% url 'inicio' %}" class="btn">INICIO</a>
     {% endif %}
-    {% if request.resolver_match.view_name != 'peliculas:catalogo' %}
-        <a href="{% url 'peliculas:catalogo' %}" class="btn">Catálogo</a>
-    {% endif %}
+    <a href="{% url 'peliculas:catalogo' %}" class="btn">
+        Recorrido FBV
+    </a>
+    <a href="{% url 'peliculas:catalogo_cbv' %}" class="btn">
+        Recorrido CBV
+    </a>
 </nav>

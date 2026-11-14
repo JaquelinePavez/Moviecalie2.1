@@ -1,9 +1,11 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
 from django.db import transaction
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -12,116 +14,190 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms import ResenaForm
-from .models import (
-    Pelicula,
-    Resena,
-)
+from .comun import contexto_resenas
+from .forms import FiltroPeliculaForm, ResenaForm
+from .models import Pelicula, Resena
 
 
-# Mixin: pide sesión y limita el conjunto a las reseñas del usuario
-class ResenasPropiasMixin(LoginRequiredMixin):
-    model = Resena
-
-    def get_queryset(self):
-        return super().get_queryset().filter(autor=self.request.user)
-
-class ResenaLista(ListView):
-    # Permite consultar la lista, pero no modificar datos mediante otros métodos
-    http_method_names = ["get", "head", "options"]
-    model = Resena
-    template_name = "peliculas/resenas_usuarios.html"
-    context_object_name = "resenas"
+class PeliculaCatalogo(ListView):
+    """Muestra el catálogo de películas con filtros."""
+    model = Pelicula
+    template_name = "peliculas/cbv/catalogo.html"
+    context_object_name = "peliculas"
 
     def get_queryset(self):
-        # Busca la película por su ID; si no existe, devuelve un error 404
-        self.pelicula = get_object_or_404(Pelicula, id=self.kwargs["id"])
+        queryset = super().get_queryset().prefetch_related(
+            "generos",
+            "actores",
+            "directores",
+        )
+        self.form = FiltroPeliculaForm(self.request.GET)
 
-        # Obtiene las reseñas de esa película, carga sus autores y las ordena por ID descendente
-        return self.pelicula.resenas.select_related("autor").order_by("-id_resena")
+        if self.form.is_valid():
+            return self.form.filtrar(queryset)
+        return queryset.order_by("-fecha_estreno")
 
     def get_context_data(self, **kwargs):
-        # Obtiene los datos que se enviarán a la plantilla
         datos = super().get_context_data(**kwargs)
-
-        # Agrega la película y el promedio de las calificaciones de sus reseñas al contexto
-        datos["pelicula"] = self.pelicula
-        # ANTES: datos["promedio_resenas"] = self.pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"]
-        # LO COMENTO PORQUE SI NO HAY RESEÑAS DEVUELVE None y tiene que mostrar 0
-        datos["promedio_resenas"] = self.pelicula.resenas.aggregate(Avg("calificacion"))["calificacion__avg"] or 0
+        datos["form"] = self.form
         return datos
-        
 
 
-class ResenaDetalle(DetailView):
-    # Solo permite consultar los datos de una reseña
-    http_method_names = ["get", "head", "options"]
+class PeliculaDetalle(DetailView):
+    """Muestra el detalle de una película y sus reseñas."""
+    model = Pelicula
+    template_name = "peliculas/cbv/detalle_pelicula.html"
+    context_object_name = "pelicula"
+
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related(
+            "generos",
+            "actores",
+            "directores",
+        )
+
+    def get_context_data(self, **kwargs):
+        datos = super().get_context_data(**kwargs)
+        ya_comento = (
+            self.request.user.is_authenticated
+            and self.object.resenas.filter(
+                autor=self.request.user
+            ).exists()
+        )
+        datos.update(
+            contexto_resenas(
+                self.object,
+                ResenaForm(),
+                "Agregar reseña",
+                ya_comento,
+            )
+        )
+        return datos
+
+
+class ResenasPropiasMixin(LoginRequiredMixin, PermissionRequiredMixin):
+    """Requiere autenticación y limita el acceso a reseñas propias."""
     model = Resena
-    template_name = "peliculas/detalle_resena.html"
-    context_object_name = "resena"
 
+    def get_queryset(self):
+        """Filtra el conjunto de reseñas para que solo incluya
+        las reseñas del usuario autenticado."""
+        return super().get_queryset().filter(autor=self.request.user)
 
-# ALTA: crea una reseña; el autor sale de la sesión y la película de la URL
-class ResenaCrear(LoginRequiredMixin, CreateView):
+class ResenaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """Permite a un usuario autenticado crear una reseña para una película."""
+    permission_required = "peliculas.add_resena"
     http_method_names = ["get", "post", "head", "options"]
     model = Resena
     form_class = ResenaForm
-    template_name = "peliculas/formulario_resena.html"
+    template_name = "peliculas/cbv/detalle_pelicula.html"
     extra_context = {"titulo_pagina": "Nueva reseña"}
 
+    def get_pelicula(self):
+        if not hasattr(self, "pelicula"):
+            self.pelicula = get_object_or_404(
+                Pelicula,
+                id=self.kwargs["id"],
+            )
+        return self.pelicula
+
+    def get_context_data(self, **kwargs):
+        datos = super().get_context_data(**kwargs)
+        pelicula = self.get_pelicula()
+        ya_comento = Resena.objects.filter(
+            pelicula=pelicula,
+            autor=self.request.user,
+        ).exists()
+        datos.update(
+            contexto_resenas(
+                pelicula,
+                datos["form"],
+                self.extra_context["titulo_pagina"],
+                ya_comento,
+            )
+        )
+        return datos
+
     def form_valid(self, form):
-        # Asigna automáticamente el usuario conectado como autor de la reseña
+        """Asigna el autor y la película a la reseña antes de guardarla."""
+        pelicula = self.get_pelicula()
+        ya_tiene_resena = Resena.objects.filter(
+            pelicula=pelicula,
+            autor=self.request.user,
+        ).exists()
+        if ya_tiene_resena:
+            form.add_error(
+                None,
+                "Ya has publicado una reseña para esta película.",
+            )
+            return self.form_invalid(form)
+
         form.instance.autor = self.request.user
-
-        # Busca la película indicada en la URL y la asigna a la reseña
-        form.instance.pelicula = get_object_or_404(Pelicula, id=self.kwargs["id"])
-
-        # Guarda la reseña dentro de una transacción para mantener la integridad de los datos
+        form.instance.pelicula = pelicula
         with transaction.atomic():
             respuesta = super().form_valid(form)
 
-        # Muestra un mensaje de confirmación después de crear la reseña
         messages.success(self.request, "La reseña se creó correctamente.")
         return respuesta
 
     def get_success_url(self):
-        # Redirige al detalle de la reseña recién creada
-        return reverse("peliculas:detalle_resena", kwargs={"pk": self.object.pk})
+        """Redirige al detalle de la película después de crear la reseña."""
+        return reverse_lazy(
+            "peliculas:detalle_pelicula_cbv",
+            kwargs={"pk": self.object.pelicula_id},
+        )
 
-# EDICIÓN: permite modificar únicamente las reseñas del usuario conectado
+
 class ResenaEditar(ResenasPropiasMixin, UpdateView):
+    """Permite a un usuario autenticado editar su reseña de una película."""
+    permission_required = "peliculas.change_resena"
     http_method_names = ["get", "post", "head", "options"]
     form_class = ResenaForm
-    template_name = "peliculas/formulario_resena.html"
+    template_name = "peliculas/cbv/detalle_pelicula.html"
     extra_context = {"titulo_pagina": "Editar reseña"}
 
-    def form_valid(self, form):
-        # Guarda los cambios de la reseña si el formulario es válido
-        respuesta = super().form_valid(form)
+    def get_context_data(self, **kwargs):
+        datos = super().get_context_data(**kwargs)
+        datos.update(
+            contexto_resenas(
+                self.object.pelicula,
+                datos["form"],
+                self.extra_context["titulo_pagina"],
+                False,
+            )
+        )
+        datos["resena"] = self.object
+        return datos
 
-        # Informa que la reseña se actualizó correctamente
+    def form_valid(self, form):
+        """Actualiza la reseña y muestra un mensaje de éxito."""
+        respuesta = super().form_valid(form)
         messages.success(self.request, "La reseña se actualizó correctamente.")
         return respuesta
 
     def get_success_url(self):
-        # Redirige al detalle de la reseña editada
-        return reverse("peliculas:detalle_resena", kwargs={"pk": self.object.pk})
+        """Redirige al detalle de la película después de editar la reseña."""
+        return reverse_lazy(
+            "peliculas:detalle_pelicula_cbv",
+            kwargs={"pk": self.object.pelicula_id},
+        )
 
-# ELIMINACIÓN: permite borrar únicamente las reseñas del usuario conectado
+
 class ResenaEliminar(ResenasPropiasMixin, DeleteView):
-    http_method_names = ["get", "post", "head", "options"]
-    template_name = "peliculas/confirmar_eliminacion.html"
+    """Permite a un usuario autenticado eliminar su reseña de una película."""
+    permission_required = "peliculas.delete_resena"
+    http_method_names = ["post"]
     context_object_name = "resena"
-    # success_url = reverse_lazy("peliculas:resenas_pelicula")
 
     def form_valid(self, form):
-        # Ejecuta la eliminación de la reseña y obtiene la respuesta correspondiente
+        """Elimina la reseña y muestra un mensaje de éxito."""
         respuesta = super().form_valid(form)
-
-        # Muestra un mensaje de confirmación después de eliminar la reseña
         messages.success(self.request, "La reseña se eliminó.")
         return respuesta
 
     def get_success_url(self):
-        # Después de eliminar la reseña, vuelve al detalle de la película a la que pertenecía
-        return reverse_lazy("peliculas:detalle", kwargs={"id": self.object.pelicula_id})
+        """Redirige al detalle de la película después de eliminar la reseña."""
+        return reverse_lazy(
+            "peliculas:detalle_pelicula_cbv",
+            kwargs={"pk": self.object.pelicula_id},
+        )
