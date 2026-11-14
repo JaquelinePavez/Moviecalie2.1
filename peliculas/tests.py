@@ -41,31 +41,35 @@ class PeliculaYResenaTests(TestCase):
 
 
 class CalificacionPeliculaTests(TestCase):
-    def crear_pelicula(self, calificacion):
-        return Pelicula(
-            titulo=f"Película {calificacion}",
+    def setUp(self):
+        self.pelicula = Pelicula(
+            titulo="Película de prueba",
             sinopsis="Una sinopsis de prueba.",
             duracion_minutos=100,
             fecha_estreno=date(2020, 1, 1),
             imagen_portada="poster.jpg",
-            calificacion_promedio=calificacion,
+            calificacion_promedio=Decimal("5.0"),
         )
 
     def test_acepta_calificacion_cero(self):
-        self.crear_pelicula(Decimal("0.0")).save()
+        self.pelicula.calificacion_promedio = Decimal("0.0")
+        self.pelicula.save()
 
     def test_acepta_calificacion_diez(self):
-        self.crear_pelicula(Decimal("10.0")).save()
+        self.pelicula.calificacion_promedio = Decimal("10.0")
+        self.pelicula.save()
 
     def test_rechaza_calificacion_menor_que_cero(self):
+        self.pelicula.calificacion_promedio = Decimal("-0.1")
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                self.crear_pelicula(Decimal("-0.1")).save()
+                self.pelicula.save()
 
     def test_rechaza_calificacion_mayor_que_diez(self):
+        self.pelicula.calificacion_promedio = Decimal("10.1")
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                self.crear_pelicula(Decimal("10.1")).save()
+                self.pelicula.save()
 
 
 class TrailerPeliculaTests(TestCase):
