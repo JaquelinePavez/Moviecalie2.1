@@ -4,13 +4,11 @@ from django import forms
 
 from .models import Actor, Director, Genero, Pelicula, Resena
 
-#RESEÑAS:
 
 class ResenaForm(forms.ModelForm):
-    # Usamos ModelForm para que las validaciones se hagan en conjunto
-    # con las del modelo.
+    """Formulario para agregar una reseña a una película"""
     calificacion = forms.DecimalField(
-        min_value=0.1,
+        min_value=0,
         max_value=10,
         max_digits=3,
         decimal_places=1,
@@ -21,7 +19,7 @@ class ResenaForm(forms.ModelForm):
         fields = ["calificacion", "texto"]
 
 
-"""Busqueda de películas"""  
+"""Busqueda de películas"""
 
 OPCIONES_ORDEN = [
     ('fecha_desc', 'Más recientes primero'),
@@ -85,7 +83,7 @@ class FiltroPeliculaForm(forms.Form):
         required=False,
         empty_label='Todos los géneros',
     )
-   
+
     actor = forms.ModelChoiceField(
         queryset=Actor.objects.all(),
         required=False,
@@ -96,7 +94,7 @@ class FiltroPeliculaForm(forms.Form):
         required=False,
         empty_label='Todos los directores',
     )
-    
+
     orden = forms.ChoiceField(
         choices=OPCIONES_ORDEN,
         required=False,
@@ -116,7 +114,9 @@ class FiltroPeliculaForm(forms.Form):
         return datos
 
     def filtrar(self, queryset):
-        """Aplica al queryset los filtros elegidos. Usar solo si is_valid() es True."""
+        """Aplica al queryset los filtros elegidos.
+        Usar solo si is_valid() es True.
+        """
         datos = self.cleaned_data
 
         if datos['q']:
