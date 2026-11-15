@@ -3,12 +3,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
-from . import views
+from peliculas import views_fbv
 
 """Url generales del proyecto."""
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.inicio, name="inicio"),   
+    path("", views_fbv.catalogo_peliculas, name="inicio"),
     path("peliculas/", include("peliculas.urls")),
     path("usuarios/", include("usuarios.urls")),
 ]
@@ -16,7 +16,8 @@ urlpatterns = [
 
 """
 Sirve archivos media únicamente durante el desarrollo local /
-esto es para que las imagenes que se van subiendo en el desarrollo local se puedan visualizar bien 
+esto es para que las imagenes que se van subiendo en el desarrollo
+local se puedan visualizar bien
 """
 
 

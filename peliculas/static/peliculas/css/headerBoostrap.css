@@ -1,34 +1,33 @@
-.perfil {
+/* Barra superior: logo + navegación a la izquierda, cuenta a la derecha. */
+.barra-superior {
+    position: sticky;
+    top: 0;
+    z-index: 20;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 28px;
+    min-height: 64px;
+    padding: 0 40px;
     background: #001b2b;
-    padding: 15px 40px;
+    border-bottom: 1px solid rgba(156, 200, 255, 0.18);
     color: white;
-    flex-wrap: wrap;
 }
 
-.perfil h1 {
-    margin: 10px 0;
-}
-
-.perfil nav {
-    display: flex;
-    flex-wrap: wrap;
+/* Logo: enlace al inicio. La imagen trae mucho margen transparente,
+   por eso se recorta con object-fit para que quede solo el texto. */
+.marca {
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-width: 0;
-    max-width: 100%;
+    flex-shrink: 0;
+    border-radius: 6px;
 }
 
-.perfil .enlace-cuenta {
-    padding: 8px 16px;
-}
-
-.perfil img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+.marca img {
+    display: block;
+    /*width: 150px;
+    height: 32px;*/
+    object-fit: cover;
+    object-position: 50% 42%;
 }
 
 .navbar-intranet {

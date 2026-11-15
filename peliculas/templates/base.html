@@ -32,8 +32,20 @@
         {% block extra_css %}{% endblock %}
     </head>
     <body>
-        <header class="perfil">
-            <h1>MovieCali</h1>
+        <header class="barra-superior">
+            <a
+                href="{% url 'inicio' %}"
+                class="marca"
+                aria-label="MovieCali, ir al inicio"
+            >
+                <img 
+                    src="{% static 'peliculas/recursos/imagenes/logo.png' %}"
+                    alt="MovieCali"
+                    width="150"
+                    height="60"
+                >
+            </a>
+            
             {% block navegacion %}
                 {% include "componentes/navegacion.html" %}
             {% endblock %}
