@@ -1,11 +1,29 @@
-<nav aria-label="Navegación principal">
-    {% if request.resolver_match.view_name != 'inicio' %}
-        <a href="{% url 'inicio' %}" class="btn">INICIO</a>
-    {% endif %}
-    <a href="{% url 'peliculas:catalogo' %}" class="btn">
-        Recorrido FBV
-    </a>
-    <a href="{% url 'peliculas:catalogo_cbv' %}" class="btn">
-        Recorrido CBV
-    </a>
-</nav>
+{% comment %}
+    Navegación principal (lado izquierdo de la barra).
+    Dos solapas: el recorrido con vistas basadas en funciones (FBV),
+    que es el inicio, y el recorrido con vistas basadas en clases (CBV).
+    La página actual no se enlaza a sí misma: se muestra como texto
+    resaltado con aria-current="page".
+{% endcomment %}
+{% with vista=request.resolver_match.view_name %}
+    <nav class="nav-principal" aria-label="Navegación principal">
+        {% if vista == 'inicio' or vista == 'peliculas:catalogo' %}
+            <span class="nav-enlace activo" aria-current="page">
+                Recorrido FBV
+            </span>
+        {% else %}
+            <a href="{% url 'inicio' %}" class="nav-enlace">Recorrido FBV</a>
+        {% endif %}
+
+        {% if vista == 'peliculas:catalogo_cbv' %}
+            <span class="nav-enlace activo" aria-current="page">
+                Recorrido CBV
+            </span>
+        {% else %}
+            <a href="{% url 'peliculas:catalogo_cbv' %}" class="nav-enlace">
+                Recorrido CBV
+            </a>
+        {% endif %}
+    </nav>
+{% endwith %}
+

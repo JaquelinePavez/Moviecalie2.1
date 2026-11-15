@@ -1,0 +1,59 @@
+{% comment %}
+    Menú de cuenta (lado derecho de la barra).
+    - Con sesión iniciada: muestra el nombre del usuario y, al desplegar,
+      "Cambiar contraseña" y "Cerrar sesión".
+    - Sin sesión: "Cuenta" y, al desplegar, "Iniciar sesión" y
+      "Registrarse".
+    Se usa <details>/<summary>, que se despliega sin JavaScript.
+{% endcomment %}
+{% with vista=request.resolver_match.view_name %}
+    <details class="menu-cuenta">
+        {% if user.is_authenticated %}
+            <summary aria-label="Menú de la cuenta de {{ user.username }}">
+                <span class="menu-cuenta-avatar" aria-hidden="true">
+                    {{ user.username|first|upper }}
+                </span>
+                <span class="menu-cuenta-nombre">{{ user.username }}</span>
+            </summary>
+            <div class="menu-cuenta-opciones">
+                {% if vista != 'usuarios:cambiar_contrasena' %}
+                    <a
+                        href="{% url 'usuarios:cambiar_contrasena' %}"
+                        class="menu-cuenta-opcion"
+                    >
+                        Cambiar contraseña
+                    </a>
+                {% endif %}
+                <!-- LogoutView solo acepta POST: por eso es un form. -->
+                <form method="post" action="{% url 'usuarios:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="menu-cuenta-opcion">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        {% else %}
+            <summary>
+                <span class="menu-cuenta-nombre">Cuenta</span>
+            </summary>
+            <div class="menu-cuenta-opciones">
+                {% if vista != 'usuarios:login' %}
+                    <a
+                        href="{% url 'usuarios:login' %}"
+                        class="menu-cuenta-opcion"
+                    >
+                        Iniciar sesión
+                    </a>
+                {% endif %}
+                {% if vista != 'usuarios:registro' %}
+                    <a
+                        href="{% url 'usuarios:registro' %}"
+                        class="menu-cuenta-opcion"
+                    >
+                        Registrarse
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </details>
+{% endwith %}

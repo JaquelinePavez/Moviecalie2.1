@@ -1,4 +1,4 @@
-/* Barra superior: logo + navegación a la izquierda, cuenta a la derecha. */
+/* Barra superior: logo + navegación a la izquierda */
 .barra-superior {
     position: sticky;
     top: 0;
@@ -24,25 +24,174 @@
 
 .marca img {
     display: block;
-    /*width: 150px;
-    height: 32px;*/
+    width: 150px;
+    height: 32px;
     object-fit: cover;
     object-position: 50% 42%;
 }
 
-.navbar-intranet {
-    background: #001b2b;
-    padding: 10px 40px;
+/* Navegación principal (izquierda). */
+.nav-principal {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
 }
-.navbar-intranet a {
-    color: white;
+
+.nav-enlace,
+.nav-enlace:visited {
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #c9d9ee;
+    font-size: 15px;
     text-decoration: none;
+    white-space: nowrap;
+}
+
+a.nav-enlace:hover {
+    background: rgba(156, 200, 255, 0.12);
+    color: white;
+}
+
+.nav-enlace.activo {
+    color: white;
+    font-weight: bold;
+    box-shadow: inset 0 -2px 0 #9cc8ff;
+    border-radius: 6px 6px 0 0;
+}
+
+/* Menú de cuenta (derecha): margin-left auto lo empuja al extremo. */
+.menu-cuenta {
+    position: relative;
+    margin-left: auto;
+}
+
+.menu-cuenta summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(156, 200, 255, 0.3);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 15px;
+    list-style: none;
+    user-select: none;
+}
+
+.menu-cuenta summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Flechita que indica que se despliega. */
+.menu-cuenta summary::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin: -3px 2px 0 2px;
+    border-right: 2px solid #9cc8ff;
+    border-bottom: 2px solid #9cc8ff;
+    transform: rotate(45deg);
+}
+
+.menu-cuenta[open] summary::after {
+    margin-top: 4px;
+    transform: rotate(-135deg);
+}
+
+.menu-cuenta summary:hover,
+.menu-cuenta[open] summary {
+    background: rgba(156, 200, 255, 0.12);
+}
+
+.menu-cuenta-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #9cc8ff;
+    color: #001b2b;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.menu-cuenta-nombre {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.menu-cuenta-opciones {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    padding: 6px;
+    border: 1px solid rgba(156, 200, 255, 0.25);
+    border-radius: 10px;
+    background: #0b2a40;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.menu-cuenta-opciones form {
+    display: flex;
+    margin: 0;
+}
+
+.menu-cuenta-opcion,
+.menu-cuenta-opcion:visited {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: white;
+    font: inherit;
+    font-size: 15px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.menu-cuenta-opcion:hover {
+    background: rgba(156, 200, 255, 0.15);
+    color: white;
 }
 
 @media (max-width: 600px) {
-    .perfil {
-        padding: 15px 16px;
+    /* El logo y la cuenta quedan arriba; la navegación baja a una
+       segunda fila para que nada se superponga. */
+    .barra-superior {
+        flex-wrap: wrap;
+        gap: 0 12px;
+        padding: 10px 16px 6px;
+    }
+
+    .nav-principal {
+        order: 3;
+        width: 100%;
+        margin-top: 6px;
+    }
+
+    .marca img {
+        width: 120px;
+        height: 26px;
+    }
+
+    .nav-enlace {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    /* En pantallas chicas queda solo el avatar o la palabra "Cuenta". */
+    .menu-cuenta-avatar + .menu-cuenta-nombre {
+        display: none;
     }
 }

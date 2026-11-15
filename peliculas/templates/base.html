@@ -11,11 +11,11 @@
         </title>
         <link
             rel="stylesheet"
-            href="{% static 'peliculas/css/body.css' %}?v=20261112-3"
+            href="{% static 'peliculas/css/body.css' %}?v=20261115-1"
         >
         <link
             rel="stylesheet"
-            href="{% static 'peliculas/css/headerBoostrap.css' %}?v=20261112-3"
+            href="{% static 'peliculas/css/headerBoostrap.css' %}?v=20261115-1"
         >
         <link
             rel="stylesheet"
@@ -23,7 +23,7 @@
         >
         <link
             rel="stylesheet"
-            href="{% static 'peliculas/css/catalogo.css' %}?v=20261113-1"
+            href="{% static 'peliculas/css/catalogo.css' %}?v=20261115-1"
         >
         <link
             rel="stylesheet"
@@ -38,55 +38,21 @@
                 class="marca"
                 aria-label="MovieCali, ir al inicio"
             >
-                <img 
+                <img
                     src="{% static 'peliculas/recursos/imagenes/logo.png' %}"
                     alt="MovieCali"
                     width="150"
-                    height="60"
+                    height="32"
                 >
             </a>
-            
+
+            <!-- Izquierda: navegación del sitio. -->
             {% block navegacion %}
                 {% include "componentes/navegacion.html" %}
             {% endblock %}
-            {% with vista=request.resolver_match.view_name %}
-                <nav aria-label="Cuenta de usuario">
-                    {% if user.is_authenticated %}
-                        <span>Hola, {{ user.username }}</span>
-                        <form
-                            method="post"
-                            action="{% url 'usuarios:logout' %}"
-                            class="form-inline"
-                        >
-                            {% csrf_token %}
-                            <button type="submit" class="btn">
-                                Cerrar sesión
-                            </button>
-                        </form>
-                        <a
-                            href="{% url 'usuarios:cambiar_contrasena' %}"
-                            class="btn"
-                        >
-                            Cambiar contraseña
-                        </a>
-                    {% else %}
-                        {% if vista != 'usuarios:login' %}
-                            <a href="{% url 'usuarios:login' %}" class="btn">
-                                Iniciar sesión
-                            </a>
-                        {% endif %}
-                        {% if vista != 'usuarios:registro' %}
-                            <a
-                                href="{% url 'usuarios:registro' %}"
-                                class="btn"
-                            >
-                                Registrarse
-                            </a>
-                        {% endif %}
-                        
-                    {% endif %}
-                </nav>
-            {% endwith %}
+
+            <!-- Derecha: opciones de la cuenta. -->
+            {% include "componentes/menu_cuenta.html" %}
         </header>
 
         <main>
@@ -101,5 +67,25 @@
         </main>
 
         {% include "componentes/footer.html" %}
+
+        <script>
+            // Cierra el menú de cuenta al hacer clic afuera o con Escape.
+            (function () {
+                var menu = document.querySelector(".menu-cuenta");
+                if (!menu) {
+                    return;
+                }
+                document.addEventListener("click", function (evento) {
+                    if (!menu.contains(evento.target)) {
+                        menu.removeAttribute("open");
+                    }
+                });
+                document.addEventListener("keydown", function (evento) {
+                    if (evento.key === "Escape") {
+                        menu.removeAttribute("open");
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>
