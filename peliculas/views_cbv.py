@@ -14,7 +14,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .comun import contexto_resenas
+from .comun import RUTAS_CBV, contexto_resenas
 from .forms import FiltroPeliculaForm, ResenaForm
 from .models import Pelicula, Resena
 
@@ -22,7 +22,7 @@ from .models import Pelicula, Resena
 class PeliculaCatalogo(ListView):
     """Muestra el catálogo de películas con filtros."""
     model = Pelicula
-    template_name = "peliculas/cbv/catalogo.html"
+    template_name = "peliculas/catalogo.html"
     context_object_name = "peliculas"
 
     def get_queryset(self):
@@ -40,13 +40,14 @@ class PeliculaCatalogo(ListView):
     def get_context_data(self, **kwargs):
         datos = super().get_context_data(**kwargs)
         datos["form"] = self.form
+        datos["rutas"] = RUTAS_CBV
         return datos
 
 
 class PeliculaDetalle(DetailView):
     """Muestra el detalle de una película y sus reseñas."""
     model = Pelicula
-    template_name = "peliculas/cbv/detalle_pelicula.html"
+    template_name = "peliculas/detalle_pelicula.html"
     context_object_name = "pelicula"
 
     def get_queryset(self):
@@ -70,6 +71,7 @@ class PeliculaDetalle(DetailView):
                 ResenaForm(),
                 "Agregar reseña",
                 ya_comento,
+                RUTAS_CBV,
             )
         )
         return datos
@@ -90,7 +92,7 @@ class ResenaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     http_method_names = ["get", "post", "head", "options"]
     model = Resena
     form_class = ResenaForm
-    template_name = "peliculas/cbv/detalle_pelicula.html"
+    template_name = "peliculas/detalle_pelicula.html"
     extra_context = {"titulo_pagina": "Nueva reseña"}
 
     def get_pelicula(self):
@@ -114,6 +116,7 @@ class ResenaCrear(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
                 datos["form"],
                 self.extra_context["titulo_pagina"],
                 ya_comento,
+                RUTAS_CBV
             )
         )
         return datos
@@ -153,7 +156,7 @@ class ResenaEditar(ResenasPropiasMixin, UpdateView):
     permission_required = "peliculas.change_resena"
     http_method_names = ["get", "post", "head", "options"]
     form_class = ResenaForm
-    template_name = "peliculas/cbv/detalle_pelicula.html"
+    template_name = "peliculas/detalle_pelicula.html"
     extra_context = {"titulo_pagina": "Editar reseña"}
 
     def get_context_data(self, **kwargs):
@@ -164,6 +167,7 @@ class ResenaEditar(ResenasPropiasMixin, UpdateView):
                 datos["form"],
                 self.extra_context["titulo_pagina"],
                 False,
+                RUTAS_CBV
             )
         )
         datos["resena"] = self.object

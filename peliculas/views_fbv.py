@@ -6,7 +6,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
 
-from .comun import contexto_resenas
+from .comun import RUTAS_FBV, contexto_resenas
 from .forms import FiltroPeliculaForm, ResenaForm
 from .models import Pelicula, Resena
 
@@ -30,6 +30,7 @@ def catalogo_peliculas(request):
     context = {
         'form': form,
         'peliculas': queryset,
+        'rutas': RUTAS_FBV,
     }
     return render(request, 'peliculas/catalogo.html', context)
 
@@ -54,6 +55,7 @@ def detalle(request, id):
             ResenaForm(),
             "Agregar reseña",
             ya_comento,
+            RUTAS_FBV,
         )
         return render(request, "peliculas/detalle_pelicula.html", contexto)
     else:
@@ -101,6 +103,7 @@ def agregar_resena(request, id):
         form,
         "Agregar reseña",
         ya_tiene_resena,
+        RUTAS_FBV,
     )
 
     return render(request, "peliculas/detalle_pelicula.html", contexto)
@@ -129,6 +132,7 @@ def editar_resenas(request, pk):
         form,
         "Editar reseña",
         False,
+        RUTAS_FBV,
     )
     contexto["resena"] = resena
     return render(request, "peliculas/detalle_pelicula.html", contexto)

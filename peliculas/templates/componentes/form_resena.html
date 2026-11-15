@@ -16,9 +16,9 @@
             </div>
         {% else %}
             {% if resena %}
-                {% url 'peliculas:editar_resenas' resena.pk as destino %}
+                {% url rutas.editar resena.pk as destino %}
             {% else %}
-                {% url 'peliculas:agregar' pelicula.id as destino %}
+                {% url rutas.agregar pelicula.pk as destino %}
             {% endif %}
             <form
                 method="post"

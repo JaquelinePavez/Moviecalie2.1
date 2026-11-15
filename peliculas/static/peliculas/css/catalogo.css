@@ -1,85 +1,309 @@
-.filtros-catalogo {
+/* ---------- Buscador: barra de título + "Más filtros" ---------- */
+.buscador-catalogo {
+    /* position: relative permite ubicar el botón "Más filtros"
+       en el extremo derecho, a la altura de la barra de búsqueda. */
+    position: relative;
+    margin-bottom: 28px;
+}
+
+.buscador-titulo {
     display: flex;
-    flex-wrap: wrap;
+    gap: 8px;
+    /* Espacio reservado para el botón "Más filtros". */
+    margin-right: 158px;
+}
+
+.buscador-titulo input {
+    flex: 1;
+    min-width: 0;
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid rgba(156, 200, 255, 0.35);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font: inherit;
+    font-size: 16px;
+}
+
+.buscador-titulo input::placeholder {
+    color: #b5c6dc;
+}
+
+.buscador-titulo input:focus {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: #9cc8ff;
+}
+
+.buscador-titulo .btn {
+    height: 46px;
+    padding: 0 22px;
+}
+
+.mas-filtros summary {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 148px;
+    height: 46px;
+    border: 1px solid rgba(156, 200, 255, 0.35);
+    border-radius: 8px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.mas-filtros summary::-webkit-details-marker {
+    display: none;
+}
+
+.mas-filtros summary::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin-top: -4px;
+    border-right: 2px solid #9cc8ff;
+    border-bottom: 2px solid #9cc8ff;
+    transform: rotate(45deg);
+}
+
+.mas-filtros[open] summary::after {
+    margin-top: 4px;
+    transform: rotate(-135deg);
+}
+
+.mas-filtros summary:hover,
+.mas-filtros[open] summary {
+    background: rgba(156, 200, 255, 0.12);
+}
+
+/* Panel desplegable: los filtros se acomodan en una grilla. */
+.grilla-filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 30px;
+    margin-top: 12px;
+    padding: 20px 20px 0;
+    border: 1px solid rgba(156, 200, 255, 0.25);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .campo-filtro {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    min-width: 160px;
+    gap: 6px;
+    min-width: 0;
 }
 
 .campo-filtro label {
+    color: #c9d9ee;
     font-size: 13px;
 }
 
 .campo-filtro input,
 .campo-filtro select {
-    padding: 8px;
-    border-radius: 6px;
+    width: 100%;
+    height: 38px;
+    padding: 0 10px;
     border: none;
-}
-
-.campo-filtro-rango {
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 8px;
-}
-
-.campo-filtro-rango input {
-    width: 90px;
+    border-radius: 6px;
+    background: #f2f6fc;
+    color: #17283d;
+    font: inherit;
+    font-size: 14px;
 }
 
 .acciones-filtro {
     display: flex;
-    align-items: flex-end;
+    justify-content: flex-end;
     gap: 10px;
+    padding: 18px 20px 20px;
+    border: 1px solid rgba(156, 200, 255, 0.25);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    background: rgba(255, 255, 255, 0.06);
 }
 
+.btn-primario,
+.btn-primario:visited {
+    background: #9cc8ff;
+    color: #001b2b;
+    font-weight: bold;
+}
+
+.btn-primario:hover {
+    background: #c9e2ff;
+    color: #001b2b;
+}
+
+.btn-secundario,
+.btn-secundario:visited {
+    background: transparent;
+    border: 1px solid rgba(156, 200, 255, 0.35);
+    color: white;
+}
+
+.btn-secundario:hover {
+    background: rgba(156, 200, 255, 0.12);
+}
+
+.errores-filtro {
+    margin-top: 12px;
+}
+
+.errores-filtro p {
+    margin: 4px 0;
+}
+
+/* ---------- Tarjetas de películas ---------- */
 .grid-peliculas {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 24px;
 }
 
 .tarjeta-pelicula {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    overflow: hidden;
+    /* position: relative: el enlace del título cubre toda la tarjeta. */
+    position: relative;
     display: flex;
     flex-direction: column;
+    border: 1px solid rgba(156, 200, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
-.tarjeta-pelicula img,
-.card img {
+.tarjeta-pelicula:hover {
+    transform: translateY(-3px);
+    border-color: rgba(156, 200, 255, 0.5);
+}
+
+.tarjeta-poster {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    background: #12263a;
+}
+
+.tarjeta-poster img {
     display: block;
     width: 100%;
-    height: 280px;
+    height: 100%;
     object-fit: cover;
-    flex-shrink: 0;
+}
+
+.poster-vacio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #8fa6c0;
+    font-size: 14px;
+}
+
+/* Puntaje: insignia sobre el póster. */
+.insignia-puntaje {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(0, 18, 30, 0.85);
+    color: #ffd76a;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2;
 }
 
 .tarjeta-pelicula-cuerpo {
-    padding: 12px;
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    padding: 14px;
+}
+
+.titulo-pelicula {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.titulo-pelicula a,
+.titulo-pelicula a:visited {
+    color: white;
+    text-decoration: none;
+}
+
+/* Hace que toda la tarjeta sea clickeable, no solo el título. */
+.titulo-pelicula a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.tarjeta-pelicula:hover .titulo-pelicula a {
+    color: #c9e2ff;
 }
 
 .tarjeta-pelicula-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #c9d9ee;
     font-size: 13px;
-    opacity: 0.8;
 }
 
+/* Clasificación: insignia discreta, solo borde. */
+.insignia-clasificacion {
+    padding: 1px 6px;
+    border: 1px solid rgba(201, 217, 238, 0.5);
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+}
+
+/* Sinopsis: se corta en 3 líneas con puntos suspensivos. */
 .tarjeta-pelicula-sinopsis {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    margin: 0;
+    overflow: hidden;
+    color: #dbe6f4;
     font-size: 13px;
-    opacity: 0.9;
+    line-height: 1.5;
+}
+
+/* Géneros: etiquetas tipo píldora. */
+.tarjeta-pelicula-generos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: auto 0 0;
+    padding: 4px 0 0;
+    list-style: none;
+}
+
+.pildora {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(156, 200, 255, 0.16);
+    color: #c9e2ff;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .badge {
@@ -97,53 +321,17 @@
     grid-column: 1 / -1;
 }
 
-/* Inicio: comparte tarjetas y colores con el catálogo. */
-.catalogo-peliculas {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(0, 400px));
-    gap: 28px;
-    width: 100%;
-    margin: 0;
-}
-
-.catalogo-peliculas .card img {
-    height: auto;
-    aspect-ratio: 4 / 5;
-}
-
-.card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
+/* Texto solo para lectores de pantalla (no se ve, pero se lee). */
+.solo-lectores {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
     padding: 0;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.08);
     overflow: hidden;
-}
-
-.titulo-pelicula a,
-.titulo-pelicula a:visited {
-    color: #c9e2ff;
-    text-decoration: none;
-}
-
-.titulo-pelicula a:hover {
-    color: white;
-    text-decoration: underline;
-}
-
-.subtitulo-tarjeta {
-    margin: 0;
-    font-size: 20px;
-    padding: 0 12px;
-    text-align: left;
-    overflow-wrap: anywhere;
-}
-
-.card .btn {
-    align-self: flex-start;
-    margin: auto 12px 16px;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 /* Detalle de película y tráiler. */
@@ -309,17 +497,22 @@
 }
 
 @media (max-width: 600px) {
-    .grid-peliculas,
-    .catalogo-peliculas {
-        grid-template-columns: minmax(0, 1fr);
+    .grid-peliculas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
     }
 
-    .campo-filtro {
+    /* "Más filtros" baja y ocupa todo el ancho. */
+    .buscador-titulo {
+        margin-right: 0;
+    }
+
+    .mas-filtros summary {
+        position: static;
         width: 100%;
-        min-width: 0;
+        margin-top: 8px;
     }
 
-    .campo-filtro-rango,
     .acciones-filtro {
         flex-wrap: wrap;
     }

@@ -1,190 +1,93 @@
-<!-- Buscar por título -->
-<div class="campo-filtro">
-    <label for="id_q">Buscar por título</label>
-    <input
-        type="text"
-        id="id_q"
-        name="q"
-        placeholder="Título de la película..."
-        value="{{ query_busqueda }}"
-    >
-</div>
+{% comment %}
+    Buscador del catálogo. Lo comparten el recorrido FBV y el CBV.
+    Espera en el contexto:
+        form          -> FiltroPeliculaForm
+        url_catalogo  -> URL a la que se envía la búsqueda
+    Los nombres de los parámetros GET no cambian (q, genero,
+    clasificacion, actor, director, anio_desde, anio_hasta,
+    min_calificacion, orden): solo cambia cómo se muestran.
+{% endcomment %}
+<form method="get" action="{{ url_catalogo }}" class="buscador-catalogo">
 
-<!-- Filtrar por género -->
-<div class="campo-filtro">
-    <label for="id_genero">Género</label>
-    <select id="id_genero" name="genero">
-        <option value="">Todos los géneros</option>
-        {% for g in generos %}
-            <option
-                value="{{ g.id }}"
-                {% if g.id == genero_seleccionado %}
-                    selected
-                {% endif %}
-            >
-                {{ g.nombre }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+    <!-- Lo principal: buscar por título. -->
+    <div class="buscador-titulo">
+        <label for="{{ form.q.id_for_label }}" class="solo-lectores">
+            Buscar por título
+        </label>
+        {{ form.q }}
+        <button type="submit" class="btn btn-primario">Buscar</button>
+    </div>
 
-<!-- Filtrar por clasificación -->
-<div class="campo-filtro">
-    <label for="id_clasificacion">Clasificación</label>
-    <select id="id_clasificacion" name="clasificacion">
-        <option value="">Todas</option>
-        {% for valor, etiqueta in clasificaciones %}
-            <option
-                value="{{ valor }}"
-                {% if valor == clasificacion_seleccionada %}
-                    selected
-                {% endif %}
-            >
-                {{ etiqueta }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+    <!-- El resto de los filtros queda en un panel desplegable.
+         Se muestra abierto si ya hay algún filtro aplicado o si
+         el formulario tiene errores, para que no queden ocultos. -->
+    <details class="mas-filtros" {% if form.errors or request.GET.genero or request.GET.clasificacion or request.GET.actor or request.GET.director or request.GET.anio_desde or request.GET.anio_hasta or request.GET.min_calificacion %}open{% endif %}>
+        <summary>Más filtros</summary>
 
-<!-- Filtrar por actor -->
-<div class="campo-filtro">
-    <label for="id_actor">Actor</label>
-    <select id="id_actor" name="actor">
-        <option value="">Todos los actores</option>
-        {% for a in actores %}
-            <option
-                value="{{ a.id }}"
-                {% if a.id == actor_seleccionado %}
-                    selected
-                {% endif %}
-            >
-                {{ a.nombre }} {{ a.apellido }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+        <div class="grilla-filtros">
+            <div class="campo-filtro">
+                <label for="{{ form.genero.id_for_label }}">Género</label>
+                {{ form.genero }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.clasificacion.id_for_label }}">
+                    Clasificación
+                </label>
+                {{ form.clasificacion }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.actor.id_for_label }}">Actor</label>
+                {{ form.actor }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.director.id_for_label }}">Director</label>
+                {{ form.director }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.anio_desde.id_for_label }}">
+                    Año desde
+                </label>
+                {{ form.anio_desde }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.anio_hasta.id_for_label }}">
+                    Año hasta
+                </label>
+                {{ form.anio_hasta }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.min_calificacion.id_for_label }}">
+                    Calificación mínima
+                </label>
+                {{ form.min_calificacion }}
+            </div>
+            <div class="campo-filtro">
+                <label for="{{ form.orden.id_for_label }}">Ordenar por</label>
+                {{ form.orden }}
+            </div>
+        </div>
 
-<!-- Filtrar por director -->
-<div class="campo-filtro">
-    <label for="id_director">Director</label>
-    <select id="id_director" name="director">
-        <option value="">Todos los directores</option>
-        {% for d in directores %}
-            <option
-                value="{{ d.id }}"
-                {% if d.id == director_seleccionado %}
-                    selected
-                {% endif %}
-            >
-                {{ d.nombre }} {{ d.apellido }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+        <div class="acciones-filtro">
+            <a href="{{ url_catalogo }}" class="btn btn-secundario">
+                Limpiar filtros
+            </a>
+            <button type="submit" class="btn btn-primario">
+                Aplicar filtros
+            </button>
+        </div>
+    </details>
 
-<!-- Rango de años -->
-<div class="campo-filtro campo-filtro-rango">
-    <label for="id_anio_desde">Año desde</label>
-    <input
-        type="number"
-        id="id_anio_desde"
-        name="anio_desde"
-        placeholder="1990"
-        value="{{ anio_desde }}"
-    >
-    <label for="id_anio_hasta">Año hasta</label>
-    <input
-        type="number"
-        id="id_anio_hasta"
-        name="anio_hasta"
-        placeholder="2026"
-        value="{{ anio_hasta }}"
-    >
-</div>
-
-<!-- Calificación mínima -->
-<div class="campo-filtro">
-    <label for="id_min_calificacion">Calificación mín.</label>
-    <select id="id_min_calificacion" name="min_calificacion">
-        <option value="">Cualquiera</option>
-        <option
-            value="9.0"
-            {% if min_calificacion == '9.0' %}
-                selected
-            {% endif %}
-        >
-            ⭐ 9.0+
-        </option>
-        <option
-            value="8.0"
-            {% if min_calificacion == '8.0' %}
-                selected
-            {% endif %}
-        >
-            ⭐ 8.0+
-        </option>
-        <option
-            value="7.0"
-            {% if min_calificacion == '7.0' %}
-                selected
-            {% endif %}
-        >
-            ⭐ 7.0+
-        </option>
-        <option
-            value="5.0"
-            {% if min_calificacion == '5.0' %}
-                selected
-            {% endif %}
-        >
-            ⭐ 5.0+
-        </option>
-    </select>
-</div>
-
-<!-- Ordenar resultados -->
-<div class="campo-filtro">
-    <label for="id_orden">Ordenar por</label>
-    <select id="id_orden" name="orden">
-        <option
-            value="fecha_desc"
-            {% if orden_seleccionado == 'fecha_desc' %}
-                selected
-            {% endif %}
-        >
-            Más recientes primero
-        </option>
-        <option
-            value="fecha_asc"
-            {% if orden_seleccionado == 'fecha_asc' %}
-                selected
-            {% endif %}
-        >
-            Más antiguas primero
-        </option>
-        <option
-            value="calificacion_desc"
-            {% if orden_seleccionado == 'calificacion_desc' %}
-                selected
-            {% endif %}
-        >
-            Mejor calificadas
-        </option>
-        <option
-            value="calificacion_asc"
-            {% if orden_seleccionado == 'calificacion_asc' %}
-                selected
-            {% endif %}
-        >
-            Menor calificación
-        </option>
-        <option
-            value="titulo_asc"
-            {% if orden_seleccionado == 'titulo_asc' %}
-                selected
-            {% endif %}
-        >
-            Título (A-Z)
-        </option>
-    </select>
-</div>
+    <!-- Errores de validación del formulario. -->
+    {% if form.errors %}
+        <div class="errores-filtro" role="alert">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+            {% for campo in form %}
+                {% for error in campo.errors %}
+                    <p>{{ campo.label }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</form>

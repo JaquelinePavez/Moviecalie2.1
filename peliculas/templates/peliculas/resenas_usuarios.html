@@ -10,8 +10,8 @@
                 <p class="resena-autor">{{ resena.autor.username }} dice:</p>
                 <p class="resena-texto">“{{ resena.texto }}”</p>
                 <div class="botonera">
-                    {% url 'peliculas:editar_resenas' resena.pk as editar %}
-                    {% url 'peliculas:eliminar_resena' resena.pk as borrar %}
+                    {% url rutas.editar resena.pk as editar %}
+                    {% url rutas.eliminar resena.pk as borrar %}
                     {% if resena.autor_id == user.id %}
                         <a
                             href="{{ editar }}"

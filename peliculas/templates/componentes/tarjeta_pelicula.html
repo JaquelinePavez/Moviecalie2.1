@@ -1,0 +1,60 @@
+{% comment %}
+    Tarjeta de una película. La comparten el recorrido FBV y el CBV.
+    Espera en el contexto:
+        pelicula     -> la película a mostrar
+        url_detalle  -> URL de la página de detalle de esa película
+    Jerarquía: póster con el puntaje encima -> título -> año y
+    clasificación -> sinopsis (3 líneas) -> géneros.
+{% endcomment %}
+<article class="tarjeta-pelicula">
+    <div class="tarjeta-poster">
+        {% if pelicula.imagen_portada %}
+            <img
+                src="{{ pelicula.imagen_portada.url }}"
+                alt="Póster de {{ pelicula.titulo }}"
+                loading="lazy"
+            >
+        {% else %}
+            <div class="poster-vacio" aria-hidden="true">Sin póster</div>
+        {% endif %}
+
+        <!-- Puntaje: insignia sobre el póster. -->
+        <span
+            class="insignia-puntaje"
+            title="Calificación promedio: {{ pelicula.calificacion_promedio }} de 10"
+        >
+            <span aria-hidden="true">★</span>
+            {{ pelicula.calificacion_promedio }}
+            <span class="solo-lectores">de 10</span>
+        </span>
+    </div>
+
+    <div class="tarjeta-pelicula-cuerpo">
+        <h2 class="titulo-pelicula">
+            <a href="{{ url_detalle }}">{{ pelicula.titulo }}</a>
+        </h2>
+
+        <p class="tarjeta-pelicula-meta">
+            <span>{{ pelicula.fecha_estreno|date:"Y" }}</span>
+            <!-- Clasificación: insignia discreta (ATP, M13, M16, M18). -->
+            <span
+                class="insignia-clasificacion"
+                title="{{ pelicula.get_clasificacion_display }}"
+            >
+                {{ pelicula.clasificacion }}
+                <span class="solo-lectores">
+                    ({{ pelicula.get_clasificacion_display }})
+                </span>
+            </span>
+        </p>
+
+        <!-- La sinopsis va completa: el CSS la corta en 3 líneas. -->
+        <p class="tarjeta-pelicula-sinopsis">{{ pelicula.sinopsis }}</p>
+
+        <ul class="tarjeta-pelicula-generos" aria-label="Géneros">
+            {% for genero in pelicula.generos.all %}
+                <li class="pildora">{{ genero.nombre }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</article>
