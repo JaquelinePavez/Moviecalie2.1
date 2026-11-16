@@ -1,84 +1,120 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
     {{ pelicula.titulo }} - Detalle
 {% endblock %}
 
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'peliculas/css/detalle.css' %}?v=20261115-1"
+    >
+{% endblock %}
+
 {% block content %}
     {% if pelicula %}
 
-        <div class="cabecera-pelicula">
+        <!-- Todo el detalle va en una columna centrada. -->
+        <div class="detalle-contenedor">
 
-            {% if pelicula.imagen_portada %}
-                <img
-                    src="{{ pelicula.imagen_portada.url }}"
-                    class="portada-detalle"
-                    width="400"
-                    height="500"
-                    alt="{{ pelicula.titulo }}"
-                >
-            {% endif %}
-
-            <div class="info-pelicula">
-                <h1 class="titulo-principal">
-                    {{ pelicula.titulo }}
-                </h1>
-                <h2>Calificación promedio:</h2>
-                <p>⭐
-                    {% if promedio_resenas is not None %}
-                        {{ promedio_resenas|floatformat:1 }} / 10
+            <!-- Ficha: mismo estilo que las tarjetas del catálogo. -->
+            <article class="detalle-pelicula">
+                <div class="detalle-poster">
+                    {% if pelicula.imagen_portada %}
+                        <img
+                            src="{{ pelicula.imagen_portada.url }}"
+                            alt="Póster de {{ pelicula.titulo }}"
+                        >
                     {% else %}
-                        Sin calificacion aun
+                        <div class="poster-vacio" aria-hidden="true">
+                            Sin póster
+                        </div>
                     {% endif %}
-                </p>
-                <h2>Sinopsis:</h2>
-                <p>{{ pelicula.sinopsis }}</p>
-                <p>
-                    <strong>Duración:</strong>
-                    {{ pelicula.duracion_minutos }} minutos
-                </p>
-                <p>
-                    <strong>Fecha de estreno:</strong>
-                    {{ pelicula.fecha_estreno|date:"d/m/Y" }}
-                </p>
-                <p>
-                    <strong>Clasificación:</strong>
-                    {{ pelicula.get_clasificacion_display }}
-                </p>
-                <p><strong>Actores:</strong>
-                    {% for actor in pelicula.actores.all %}
-                        {{ actor.nombre }}
-                        {{ actor.apellido }}{% if not forloop.last %},
+
+                    <!-- Promedio de las reseñas: insignia sobre el póster. -->
+                    <span class="insignia-puntaje">
+                        <span aria-hidden="true">★</span>
+                        {% if promedio_resenas is not None %}
+                            {{ promedio_resenas|floatformat:1 }}
+                            <span class="solo-lectores">de 10</span>
+                        {% else %}
+                            Sin calificación aún
                         {% endif %}
-                    {% empty %}
-                        No hay actores cargados.
-                    {% endfor %}
-                </p>
-                <p><strong>Directores:</strong>
-                    {% for director in pelicula.directores.all %}
-                        {{ director.nombre }}
-                        {{ director.apellido }}{% if not forloop.last %},
-                        {% endif %}
-                    {% empty %}
-                        No hay directores cargados.
-                    {% endfor %}
-                </p>
-                <p><strong>Géneros:</strong>
-                    {% for genero in pelicula.generos.all %}
-                        {{ genero.nombre }}{% if not forloop.last %},
-                        {% endif %}
-                    {% empty %}
-                        No hay géneros cargados.
-                    {% endfor %}
-                </p>
-                {% if pelicula.trailer_embed_url %}
-                    <div class="trailer">
-                        <h2>Tráiler</h2>
+                    </span>
+                </div>
+
+                <div class="detalle-info">
+                    <h1 class="detalle-titulo">{{ pelicula.titulo }}</h1>
+
+                    <p class="detalle-meta">
+                        <span>{{ pelicula.fecha_estreno|date:"Y" }}</span>
+                        <span>{{ pelicula.duracion_minutos }} min</span>
+                        <span
+                            class="insignia-clasificacion"
+                            title="{{ pelicula.get_clasificacion_display }}"
+                        >
+                            {{ pelicula.clasificacion }}
+                        </span>
+                    </p>
+
+                    <ul class="tarjeta-pelicula-generos" aria-label="Géneros">
+                        {% for genero in pelicula.generos.all %}
+                            <li class="pildora">{{ genero.nombre }}</li>
+                        {% empty %}
+                            <li class="detalle-vacio">
+                                No hay géneros cargados.
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <h2 class="detalle-subtitulo">Sinopsis</h2>
+                    <p class="detalle-sinopsis">{{ pelicula.sinopsis }}</p>
+
+                    <dl class="detalle-ficha">
+                        <div>
+                            <dt>Dirección</dt>
+                            <dd>
+                                {% for director in pelicula.directores.all %}
+                                    {{ director.nombre }} {{ director.apellido }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No hay directores cargados.
+                                {% endfor %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Reparto</dt>
+                            <dd>
+                                {% for actor in pelicula.actores.all %}
+                                    {{ actor.nombre }} {{ actor.apellido }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No hay actores cargados.
+                                {% endfor %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Estreno</dt>
+                            <dd>{{ pelicula.fecha_estreno|date:"d/m/Y" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Duración</dt>
+                            <dd>{{ pelicula.duracion_minutos }} minutos</dd>
+                        </div>
+                        <div>
+                            <dt>Clasificación</dt>
+                            <dd>{{ pelicula.get_clasificacion_display }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </article>
+
+            {% if pelicula.trailer_embed_url %}
+                <section class="detalle-seccion" aria-labelledby="titulo-trailer">
+                    <h2 id="titulo-trailer">Tráiler</h2>
+                    <div class="detalle-trailer">
                         <iframe
                             src="{{ pelicula.trailer_embed_url }}"
                             title="Tráiler de {{ pelicula.titulo }}"
-                            width="800"
-                            height="450"
                             allow="accelerometer; autoplay; clipboard-write;
                                 encrypted-media; gyroscope;
                                 picture-in-picture; web-share"
@@ -87,14 +123,14 @@
                         >
                         </iframe>
                     </div>
-                {% endif %}
+                </section>
+            {% endif %}
 
-            </div>
+            <section class="detalle-seccion">
+                {% include "componentes/form_resena.html" %}
+                {% include "peliculas/resenas_usuarios.html" %}
+            </section>
         </div>
-
-        <hr class="separador-detalle">
-        {% include "componentes/form_resena.html" %}
-        {% include "peliculas/resenas_usuarios.html" %}
 
     {% else %}
 

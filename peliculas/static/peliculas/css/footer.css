@@ -3,6 +3,7 @@
     padding: 20px;
     text-align: center;
     background: #001b2b;
+    border-top: 1px solid rgba(156, 200, 255, 0.18);
     color: white;
     margin-top: 30px;
 }

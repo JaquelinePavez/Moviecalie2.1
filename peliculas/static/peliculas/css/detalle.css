@@ -1,0 +1,175 @@
+/* Columna centrada: limita el ancho y lo centra en la página. */
+.detalle-contenedor {
+    width: 100%;
+    max-width: 1040px;
+    margin: 12px auto 0;
+}
+
+/* ---------- Ficha principal ---------- */
+.detalle-pelicula {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 32px;
+    padding: 24px;
+    border: 1px solid rgba(156, 200, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.detalle-poster {
+    position: relative;
+    align-self: start;
+    aspect-ratio: 2 / 3;
+    border-radius: 10px;
+    background: #12263a;
+    overflow: hidden;
+}
+
+.detalle-poster img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detalle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.detalle-titulo {
+    margin: 0;
+    font-size: 34px;
+    line-height: 1.15;
+}
+
+/* Año · duración · clasificación, en una sola línea. */
+.detalle-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: #c9d9ee;
+    font-size: 15px;
+}
+
+.detalle-meta span + span:not(.insignia-clasificacion)::before {
+    content: "·";
+    margin-right: 10px;
+}
+
+.detalle-info .tarjeta-pelicula-generos {
+    margin: 0;
+    padding: 0;
+}
+
+.detalle-vacio {
+    color: #c9d9ee;
+    font-size: 14px;
+}
+
+.detalle-subtitulo {
+    margin: 8px 0 0;
+    color: #9cc8ff;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.detalle-sinopsis {
+    margin: 0;
+    color: #dbe6f4;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+/* Datos de la película: etiqueta a la izquierda, valor a la derecha. */
+.detalle-ficha {
+    display: grid;
+    gap: 10px;
+    margin: 6px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(156, 200, 255, 0.18);
+}
+
+.detalle-ficha div {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 12px;
+}
+
+.detalle-ficha dt {
+    color: #c9d9ee;
+    font-size: 14px;
+}
+
+.detalle-ficha dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* ---------- Tráiler y reseñas ---------- */
+.detalle-seccion {
+    margin-top: 32px;
+}
+
+.detalle-seccion h2 {
+    margin: 0 0 14px;
+    font-size: 22px;
+}
+
+.detalle-trailer {
+    border: 1px solid rgba(156, 200, 255, 0.14);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.detalle-trailer iframe {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border: 0;
+}
+
+/* Reseñas: se igualan al borde y radio de la ficha. */
+.detalle-contenedor .form-resena {
+    margin: 0 0 28px;
+    border-color: rgba(156, 200, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.detalle-contenedor .item-aside,
+.detalle-contenedor .sin-resenas {
+    border-color: rgba(156, 200, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+@media (max-width: 760px) {
+    .detalle-pelicula {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+        padding: 16px;
+    }
+
+    .detalle-poster {
+        width: 100%;
+        max-width: 260px;
+        justify-self: center;
+    }
+
+    .detalle-titulo {
+        font-size: 26px;
+    }
+
+    .detalle-ficha div {
+        grid-template-columns: 100px minmax(0, 1fr);
+    }
+}
