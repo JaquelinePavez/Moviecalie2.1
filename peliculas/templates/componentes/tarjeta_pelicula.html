@@ -21,11 +21,14 @@
         <!-- Puntaje: insignia sobre el póster. -->
         <span
             class="insignia-puntaje"
-            title="Calificación promedio: {{ pelicula.calificacion_promedio }} de 10"
         >
             <span aria-hidden="true">★</span>
-            {{ pelicula.calificacion_promedio }}
-            <span class="solo-lectores">de 10</span>
+            {% if pelicula.calificacion_promedio is not None %}
+                {{ pelicula.calificacion_promedio|floatformat:1 }}
+                <span class="solo-lectores">de 10</span>
+            {% else %}
+                Sin calificación
+            {% endif %}
         </span>
     </div>
 

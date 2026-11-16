@@ -127,7 +127,10 @@ class Pelicula(models.Model):
     calificacion_promedio = models.DecimalField(
         max_digits=3,
         decimal_places=1,
-        default=0,
+        null=True,
+        blank=True,
+        default=None,
+        # le indica que aun no tiene calificacion y no calificacion=0
         validators=[MinValueValidator(0), MaxValueValidator(10)],
     )
 
@@ -228,6 +231,19 @@ class Pelicula(models.Model):
             return f"https://www.youtube.com/embed/{video_id}"
         return None
 
+    def actualizar_calificacion(self):
+        """Guarda como calificación el promedio de las reseñas.
+        Si la película no tiene reseñas, queda sin calificación."""
+        promedio = self.resenas.aggregate(
+            models.Avg("calificacion")
+        )["calificacion__avg"]
+
+        if promedio is not None:
+            promedio = round(promedio, 1)
+
+        self.calificacion_promedio = promedio
+        self.save(update_fields=["calificacion_promedio"])
+
 
 class Resena(models.Model):
     id_resena = models.AutoField(primary_key=True,)
@@ -277,6 +293,16 @@ class Resena(models.Model):
                     )
                 }
             )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.pelicula.actualizar_calificacion()
+
+    def delete(self, *args, **kwargs):
+        pelicula = self.pelicula
+        resultado = super().delete(*args, **kwargs)
+        pelicula.actualizar_calificacion()
+        return resultado
 
     def __str__(self):
         return f"Reseña de {self.autor.username} para {self.pelicula.titulo}"
