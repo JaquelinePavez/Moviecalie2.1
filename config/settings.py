@@ -4,24 +4,25 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Carga las variables del archivo .env, si existe.
-# No reemplaza las variables que ya estén definidas en el entorno.
+# load_dotenv no pisa las variables que ya estén definidas en el entorno:
+# si una variable existe en el sistema, esa tiene prioridad sobre el .env.
 load_dotenv(BASE_DIR / ".env")
 
-# Leer la clave secreta desde una variable de entorno.
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 
-# Si no existe la clave, mostrar un error claro.
+# Se corta el arranque con un mensaje claro en vez de dejar que Django
+# falle más adelante con un error difícil de relacionar con el .env.
 if not SECRET_KEY:
     raise ImproperlyConfigured("Falta configurar DJANGO_SECRET_KEY")
 
-# Activar DEBUG solo cuando la variable diga "true".
+# DEBUG queda apagado salvo que la variable diga exactamente "true",
+# así un .env incompleto nunca lo deja activado por accidente.
 DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
 
-# Leer los hosts permitidos desde una variable de entorno.
+# DJANGO_ALLOWED_HOSTS llega como texto separado por comas
+# (por ejemplo "localhost,127.0.0.1") y acá se convierte en lista.
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
@@ -33,12 +34,10 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-# Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
-    "django.contrib.auth",#aportan las tablas a la base de datos
-    "django.contrib.contenttypes",#como auth_user, auth_group, auth_permisos
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -46,12 +45,15 @@ INSTALLED_APPS = [
     "usuarios.apps.UsuariosConfig",
 ]
 
+# El orden importa: SessionMiddleware tiene que ir antes que
+# AuthenticationMiddleware, porque el usuario autenticado se obtiene
+# a partir de la sesión.
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'django.contrib.sessions.middleware.SessionMiddleware', # <-- Debe ir primero
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware", #verifica que el token que recibe por formulario sea igual al que guardo en la cookie del usuario
-    'django.contrib.auth.middleware.AuthenticationMiddleware', # <-- Debe ir después
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -61,12 +63,14 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],# Le indica a Django buscar en la raíz
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth", #le agrega varibles al contexto de forma automatica, como user o perms(permisos) a todos los templates
+                # Agrega "user" y "perms" al contexto de todos los
+                # templates, sin tener que pasarlos desde cada vista.
+                "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
         },
@@ -76,9 +80,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -87,75 +88,66 @@ DATABASES = {
 }
 
 
-# Validacion de contraseñas
-# https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [ #rechaza contraseñas muy cortas establece un largo minimo
-#,que no sean damasiado comunes, iguales al username, que no sea solo numericas.
-   
+AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "MinimumLengthValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "CommonPasswordValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "NumericPasswordValidator"
+        ),
     },
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.1/topics/i18n/
-
 LANGUAGE_CODE = "es-ar"
 
-TIME_ZONE = 'America/Argentina/Buenos_Aires'
-
+TIME_ZONE = "America/Argentina/Buenos_Aires"
 
 USE_I18N = True
 
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.1/howto/static-files/
-
 STATIC_URL = "static/"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Configuración de Archivos Multimedia (Subidos por usuarios)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-LOGIN_URL = 'usuarios:login' #si alguien intenta entrar a una pagina protegida sin estar logueado, mandalo para acá
-AUTH_USER_MODEL = "usuarios.Usuario" 
-LOGIN_REDIRECT_URL = 'inicio' #si alguien se loguea desde la pantalla de login directamente (sin venir de una página protegida), mandalo para acá al terminar
-#comente logout porque en usuarios/urls.py se pisa con next_page
-#LOGOUT_REDIRECT_URL = "usuarios:login" #después de cerrar sesión, MovieCali vuelve al inicio de sesión.
-# esto lo saque de aca :
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-#===============================Antiguo==================================
-# Solo para desarrollo local.
-# Muestra los correos en la terminal en lugar de enviarlos.
-# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-#========================================================================
-#==============================Corregido=================================
-# Usamos el backend que creamos para mostrar los correos
-# de recuperación en la consola de forma más clara,
-# evitando que los enlaces se corten en varias líneas.
-# Esto se usa durante el desarrollo, ya que para enviar
-# correos reales necesitamos configurar un servidor SMTP.
+AUTH_USER_MODEL = "usuarios.Usuario"
+
+# A dónde se manda a quien intenta entrar a una página protegida
+# sin haber iniciado sesión.
+LOGIN_URL = "usuarios:login"
+
+# A dónde se va después de iniciar sesión cuando no se venía de una
+# página protegida.
+LOGIN_REDIRECT_URL = "inicio"
+
+# No se define LOGOUT_REDIRECT_URL: el destino después de cerrar sesión
+# se indica con next_page en la ruta "logout" de usuarios/urls.py.
+
+
+# Backend propio: muestra los correos de recuperación en la consola sin
+# cortar los enlaces en varias líneas. Es solo para desarrollo; para
+# enviar correos reales hay que configurar un servidor SMTP.
 EMAIL_BACKEND = "usuarios.email_backend.EmailBackend"
-#========================================================================
 DEFAULT_FROM_EMAIL = "nombre@moviecali.local"
-
-
-#MAILERS = {
-#    "default": {
-#        "BACKEND": "django.core.mail.backends.console.EmailBackend",
-#    },
-#}
