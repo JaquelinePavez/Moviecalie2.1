@@ -8,6 +8,13 @@ from django.db.models.deletion import ProtectedError
 
 
 class Persona(models.Model):
+    """Molde con los datos que comparten Actor y Director.
+
+    Es una clase abstracta (abstract = True): no crea una tabla en
+    la base de datos ni aparece en el admin. Existe solo para no
+    repetir los mismos campos y el __str__ en los dos modelos.
+    No borrar: Actor y Director heredan sus campos de esta clase.
+    """
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     nacionalidad = models.CharField(max_length=100)
