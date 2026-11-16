@@ -81,10 +81,10 @@
     background: rgba(156, 200, 255, 0.12);
 }
 
-/* Panel desplegable: los filtros se acomodan en una grilla. */
+/* Panel desplegable: los filtros se acomodan en una columna una abajo de la otra. */
 .grilla-filtros {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 12px;
     padding: 20px 20px 0;
@@ -92,6 +92,15 @@
     border-bottom: none;
     border-radius: 10px 10px 0 0;
     background: rgba(255, 255, 255, 0.06);
+}
+/*hace que el panel de filtro flote por encima de las tarjetas y que no las empuje hacia abajo*/
+.panel-filtros {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    z-index: 10;
+    width: 320px;
+    border-radius: 10px;
 }
 
 .campo-filtro {
@@ -516,4 +525,8 @@
     .acciones-filtro {
         flex-wrap: wrap;
     }
+    .panel-filtros {
+    position: static;
+    width: 100%;
+}
 }

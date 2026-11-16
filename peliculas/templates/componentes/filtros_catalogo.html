@@ -21,57 +21,58 @@
          el formulario tiene errores, para que no queden ocultos. -->
     <details class="mas-filtros" {% if form.errors or request.GET.genero or request.GET.clasificacion or request.GET.actor or request.GET.director or request.GET.anio_desde or request.GET.anio_hasta or request.GET.min_calificacion %}open{% endif %}>
         <summary>Más filtros</summary>
+        <div class="panel-filtros">
+            <div class="grilla-filtros">
+                <div class="campo-filtro">
+                    <label for="{{ form.genero.id_for_label }}">Género</label>
+                    {{ form.genero }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.clasificacion.id_for_label }}">
+                        Clasificación
+                    </label>
+                    {{ form.clasificacion }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.actor.id_for_label }}">Actor</label>
+                    {{ form.actor }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.director.id_for_label }}">Director</label>
+                    {{ form.director }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.anio_desde.id_for_label }}">
+                        Año desde
+                    </label>
+                    {{ form.anio_desde }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.anio_hasta.id_for_label }}">
+                        Año hasta
+                    </label>
+                    {{ form.anio_hasta }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.min_calificacion.id_for_label }}">
+                        Calificación mínima
+                    </label>
+                    {{ form.min_calificacion }}
+                </div>
+                <div class="campo-filtro">
+                    <label for="{{ form.orden.id_for_label }}">Ordenar por</label>
+                    {{ form.orden }}
+                </div>
+            </div>
 
-        <div class="grilla-filtros">
-            <div class="campo-filtro">
-                <label for="{{ form.genero.id_for_label }}">Género</label>
-                {{ form.genero }}
+            <div class="acciones-filtro">
+                <a href="{{ url_catalogo }}" class="btn btn-secundario">
+                    Limpiar filtros
+                </a>
+                <button type="submit" class="btn btn-primario">
+                    Aplicar filtros
+                </button>
             </div>
-            <div class="campo-filtro">
-                <label for="{{ form.clasificacion.id_for_label }}">
-                    Clasificación
-                </label>
-                {{ form.clasificacion }}
-            </div>
-            <div class="campo-filtro">
-                <label for="{{ form.actor.id_for_label }}">Actor</label>
-                {{ form.actor }}
-            </div>
-            <div class="campo-filtro">
-                <label for="{{ form.director.id_for_label }}">Director</label>
-                {{ form.director }}
-            </div>
-            <div class="campo-filtro">
-                <label for="{{ form.anio_desde.id_for_label }}">
-                    Año desde
-                </label>
-                {{ form.anio_desde }}
-            </div>
-            <div class="campo-filtro">
-                <label for="{{ form.anio_hasta.id_for_label }}">
-                    Año hasta
-                </label>
-                {{ form.anio_hasta }}
-            </div>
-            <div class="campo-filtro">
-                <label for="{{ form.min_calificacion.id_for_label }}">
-                    Calificación mínima
-                </label>
-                {{ form.min_calificacion }}
-            </div>
-            <div class="campo-filtro">
-                <label for="{{ form.orden.id_for_label }}">Ordenar por</label>
-                {{ form.orden }}
-            </div>
-        </div>
-
-        <div class="acciones-filtro">
-            <a href="{{ url_catalogo }}" class="btn btn-secundario">
-                Limpiar filtros
-            </a>
-            <button type="submit" class="btn btn-primario">
-                Aplicar filtros
-            </button>
         </div>
     </details>
 
